@@ -13,7 +13,10 @@ var Symbols = runtime.Symtab{
 	"print":   runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPrint, "print")),
 	"println": runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPrintln, "println")),
 	"list":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdList, "list")),
-	"+":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdAdd, "+")),
+	"+":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "+")),
+	"-":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "-")),
+	"*":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "*")),
+	"/":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "/")),
 }
 
 func stdPrint(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -42,12 +45,27 @@ func stdList(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	return l, nil
 }
 
-func stdAdd(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+func stdMath(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return runtime.NewNumberValueFromRat(big.NewRat(0, 1).Add(context.Args[0].Number, context.Args[1].Number)), nil
+	base := big.NewRat(0, 1)
+
+	var callback func(*big.Rat, *big.Rat) *big.Rat
+
+	switch context.Name {
+	case "+":
+		callback = base.Add
+	case "-":
+		callback = base.Sub
+	case "*":
+		callback = base.Mul
+	case "/":
+		callback = base.Quo
+	}
+
+	return runtime.NewNumberValueFromRat(callback(context.Args[0].Number, context.Args[1].Number)), nil
 }
