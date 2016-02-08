@@ -3,7 +3,7 @@ package runtime
 import "github.com/raoulvdberge/risp/parser"
 
 func (b *Block) Eval() (*Value, error) {
-	var result *Value
+	var result *Value = Nil
 
 	for _, n := range b.Nodes {
 		r, err := b.evalNode(n)

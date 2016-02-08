@@ -134,7 +134,7 @@ func (p *Parser) Parse() error {
 }
 
 func (p *Parser) ToJson() string {
-	b, _ := json.MarshalIndent(p, "", "    ")
+	bytes, _ := json.MarshalIndent(p, "", "    ")
 
-	return string(b)
+	return string(bytes)
 }

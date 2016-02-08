@@ -9,32 +9,42 @@ import (
 	"github.com/raoulvdberge/risp/runtime"
 	"github.com/raoulvdberge/risp/std"
 	"github.com/raoulvdberge/risp/util"
+	"io/ioutil"
 	"os"
 )
 
 var (
-	ast = flag.Bool("ast", false, "dump the abstract syntax tree")
+	ast       = flag.Bool("ast", false, "dump the abstract syntax tree")
+	fromStdin = flag.Bool("from-stdin", false, "read input from stdin")
 )
 
 func main() {
 	flag.Usage = usage
 	flag.Parse()
 
-	if len(flag.Args()) > 0 {
-		runFile(flag.Arg(0))
+	if *fromStdin {
+		bytes, err := ioutil.ReadAll(os.Stdin)
+
+		if err != nil {
+			reportError(err, false)
+		}
+
+		run(lexer.NewSourceFromString("<stdin>", string(bytes)))
+	} else if len(flag.Args()) > 0 {
+		file, err := util.NewFile(flag.Arg(0))
+
+		if err != nil {
+			reportError(err, false)
+		}
+
+		run(lexer.NewSourceFromFile(file))
 	} else {
 		runRepl()
 	}
 }
 
-func runFile(name string) {
-	file, err := util.NewFile(name)
-
-	if err != nil {
-		reportError(err, false)
-	}
-
-	l := lexer.NewLexer(lexer.NewSourceFromFile(file))
+func run(source lexer.Source) {
+	l := lexer.NewLexer(source)
 	reportError(l.Lex(), false)
 
 	p := parser.NewParser(l.Tokens)
