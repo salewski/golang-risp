@@ -1,9 +1,6 @@
 package parser
 
-import (
-	"encoding/json"
-	"github.com/raoulvdberge/risp/lexer"
-)
+import "github.com/raoulvdberge/risp/lexer"
 
 type Parser struct {
 	pos    int            `json:"-"`
@@ -131,10 +128,4 @@ func (p *Parser) Parse() error {
 	}
 
 	return nil
-}
-
-func (p *Parser) ToJson() string {
-	bytes, _ := json.MarshalIndent(p, "", "    ")
-
-	return string(bytes)
 }

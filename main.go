@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/raoulvdberge/risp/lexer"
@@ -15,6 +16,7 @@ import (
 
 var (
 	ast       = flag.Bool("ast", false, "dump the abstract syntax tree")
+	astIndent = flag.String("ast-indent", "", "the indendentation character for the abstract syntax tree output")
 	fromStdin = flag.Bool("from-stdin", false, "read input from stdin")
 )
 
@@ -51,7 +53,15 @@ func run(source lexer.Source) {
 	reportError(p.Parse(), false)
 
 	if *ast {
-		fmt.Println(p.ToJson())
+		var bytes []byte
+
+		if *astIndent == "" {
+			bytes, _ = json.Marshal(p)
+		} else {
+			bytes, _ = json.MarshalIndent(p, "", *astIndent)
+		}
+
+		fmt.Println(string(bytes))
 	} else {
 		b := runtime.NewBlock(p.Nodes, runtime.NewScope(nil))
 		b.Scope.Apply(std.Symbols)
