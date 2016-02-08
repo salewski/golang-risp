@@ -64,6 +64,10 @@ func stdMath(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	case "*":
 		callback = base.Mul
 	case "/":
+		if context.Args[1].Number.Cmp(base) == 0 {
+			return nil, runtime.NewRuntimeError(context.Pos, "division by zero")
+		}
+
 		callback = base.Quo
 	}
 
