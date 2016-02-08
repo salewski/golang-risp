@@ -67,7 +67,7 @@ func (v *Value) String() string {
 			return "f"
 		}
 	case KeywordValue:
-		return v.Keyword
+		return ":" + v.Keyword
 	case ListValue:
 		s := "("
 
@@ -94,7 +94,7 @@ func NewStringValue(value string) *Value {
 }
 
 func NewKeywordValue(value string) *Value {
-	return &Value{Type: KeywordValue, Str: value}
+	return &Value{Type: KeywordValue, Keyword: value}
 }
 
 func NewNumberValueFromString(value string) *Value {
