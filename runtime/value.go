@@ -69,14 +69,23 @@ func (v *Value) String() string {
 	case KeywordValue:
 		return v.Keyword
 	case ListValue:
-		// @TODO
-		return "<list>"
-	case FunctionValue:
-		return "<function>"
+		s := "("
+
+		for i, item := range v.List {
+			s += item.String()
+
+			if i != len(v.List)-1 {
+				s += " "
+			}
+		}
+
+		s += ")"
+
+		return s
 	case NilValue:
 		return "nil"
 	default:
-		return "<?>"
+		return "<" + v.Type.String() + ">"
 	}
 }
 
@@ -105,4 +114,8 @@ func NewFunctionValue(value *Function) *Value {
 
 func NewBooleanValue(value bool) *Value {
 	return &Value{Type: BooleanValue, Boolean: value}
+}
+
+func NewListValue() *Value {
+	return &Value{Type: ListValue}
 }
