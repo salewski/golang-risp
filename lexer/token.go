@@ -1,7 +1,5 @@
 package lexer
 
-import "github.com/raoulvdberge/risp/util"
-
 type TokenType int
 
 const (
@@ -19,9 +17,9 @@ type Token struct {
 }
 
 type TokenPos struct {
-	Line int        `json:"line"`
-	Col  int        `json:"col"`
-	File *util.File `json:"-"`
+	Line   int    `json:"line"`
+	Col    int    `json:"col"`
+	Source Source `json:"-"`
 }
 
 func NewToken(typ TokenType, data string, pos *TokenPos) *Token {

@@ -18,11 +18,5 @@ func NewSyntaxError(pos *TokenPos, format string, data ...interface{}) *SyntaxEr
 }
 
 func (e *SyntaxError) Error() string {
-	f := ""
-
-	if e.pos.File != nil {
-		f = e.pos.File.Name
-	}
-
-	return fmt.Sprintf(util.Red("syntax error:")+" %s(%d:%d): %s", f, e.pos.Line, e.pos.Col, e.message)
+	return fmt.Sprintf(util.Red("syntax error:")+" %s(%d:%d): %s", e.pos.Source.Name(), e.pos.Line, e.pos.Col, e.message)
 }

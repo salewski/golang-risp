@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"github.com/raoulvdberge/risp/util"
 	"strconv"
 	"strings"
 	"unicode"
@@ -13,29 +12,18 @@ type Lexer struct {
 	line     int
 	col      int
 	data     string
-	file     *util.File
+	source   Source
 	Tokens   []*Token
 }
 
-func NewLexerFromString(data string) *Lexer {
+func NewLexer(source Source) *Lexer {
 	return &Lexer{
 		pos:      0,
 		startPos: 0,
 		line:     1,
 		col:      1,
-		data:     data,
-		file:     nil,
-	}
-}
-
-func NewLexerFromFile(file *util.File) *Lexer {
-	return &Lexer{
-		pos:      0,
-		startPos: 0,
-		line:     1,
-		col:      1,
-		data:     file.Data,
-		file:     file,
+		data:     source.Data(),
+		source:   source,
 	}
 }
 
@@ -51,9 +39,9 @@ func (l *Lexer) addToken(typ TokenType) *Token {
 
 func (l *Lexer) newPos() *TokenPos {
 	return &TokenPos{
-		Line: l.line,
-		Col:  l.col,
-		File: l.file,
+		Line:   l.line,
+		Col:    l.col,
+		Source: l.source,
 	}
 }
 

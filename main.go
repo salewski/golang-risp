@@ -34,7 +34,7 @@ func runFile(name string) {
 		reportError(err, false)
 	}
 
-	l := lexer.NewLexerFromFile(file)
+	l := lexer.NewLexer(lexer.NewSourceFromFile(file))
 	reportError(l.Lex(), false)
 
 	p := parser.NewParser(l.Tokens)
@@ -65,9 +65,10 @@ func runRepl() {
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("> ")
+
 		data, _ := reader.ReadString('\n')
 
-		l := lexer.NewLexerFromString(data)
+		l := lexer.NewLexer(lexer.NewSourceFromString("<repl>", data))
 
 		err := l.Lex()
 

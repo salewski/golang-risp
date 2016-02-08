@@ -19,11 +19,5 @@ func NewRuntimeError(pos *lexer.TokenPos, format string, data ...interface{}) *R
 }
 
 func (e *RuntimeError) Error() string {
-	f := ""
-
-	if e.pos.File != nil {
-		f = e.pos.File.Name
-	}
-
-	return fmt.Sprintf(util.Red("runtime error:")+" %s(%d:%d): %s", f, e.pos.Line, e.pos.Col, e.message)
+	return fmt.Sprintf(util.Red("runtime error:")+" %s(%d:%d): %s", e.pos.Source.Name(), e.pos.Line, e.pos.Col, e.message)
 }
