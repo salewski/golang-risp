@@ -121,7 +121,7 @@ func (l *Lexer) lexString() error {
 		l.consume()
 	}
 
-	if l.current() != '"' {
+	if l.isEOF() || l.current() != '"' {
 		return NewSyntaxError(l.newPos(), "unclosed string literal")
 	}
 
