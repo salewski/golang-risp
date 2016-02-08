@@ -12,6 +12,10 @@ risp examples/hello-world.rp
 ```
 risp
 ```
+### Running from stdin
+```
+echo "(println (+ 1 1))" | risp -from-stdin
+```
 
 ## Building
 Make sure you have at least Go 1.5 installed and set up correctly.

@@ -7,8 +7,8 @@ import (
 )
 
 var Symbols = runtime.Symtab{
-	"t":       runtime.NewBooleanValue(true),
-	"f":       runtime.NewBooleanValue(false),
+	"t":       runtime.True,
+	"f":       runtime.False,
 	"nil":     runtime.Nil,
 	"print":   runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPrint, "print")),
 	"println": runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPrintln, "println")),
@@ -17,6 +17,7 @@ var Symbols = runtime.Symtab{
 	"-":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "-")),
 	"*":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "*")),
 	"/":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "/")),
+	"=":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdEquals, "=")),
 }
 
 func stdPrint(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -72,4 +73,18 @@ func stdMath(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	}
 
 	return runtime.NewNumberValueFromRat(callback(context.Args[0].Number, context.Args[1].Number)), nil
+}
+
+func stdEquals(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.AnyValue, runtime.AnyValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if context.Args[0].Equals(context.Args[1]) {
+		return runtime.True, nil
+	} else {
+		return runtime.False, nil
+	}
 }

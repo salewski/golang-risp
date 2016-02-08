@@ -2,7 +2,11 @@ package runtime
 
 import "math/big"
 
-var Nil = &Value{Type: NilValue}
+var (
+	Nil   = &Value{Type: NilValue}
+	True  = &Value{Type: BooleanValue, Boolean: true}
+	False = &Value{Type: BooleanValue, Boolean: false}
+)
 
 type ValueType int
 
@@ -89,6 +93,41 @@ func (v *Value) String() string {
 	}
 }
 
+func (v *Value) Equals(other *Value) bool {
+	if v.Type != other.Type {
+		return false
+	}
+
+	switch v.Type {
+	case StringValue:
+		return v.Str == other.Str
+	case NumberValue:
+		return v.Number.Cmp(other.Number) == 0
+	case BooleanValue:
+		return v.Boolean == other.Boolean
+	case KeywordValue:
+		return v.Keyword == other.Keyword
+	case ListValue:
+		if len(v.List) != len(other.List) {
+			return false
+		}
+
+		for i, v := range v.List {
+			if !v.Equals(other.List[i]) {
+				return false
+			}
+		}
+
+		return true
+	case FunctionValue:
+		return &v.Function == &other.Function
+	case NilValue:
+		return true
+	default:
+		return false
+	}
+}
+
 func NewStringValue(value string) *Value {
 	return &Value{Type: StringValue, Str: value}
 }
@@ -110,10 +149,6 @@ func NewNumberValueFromRat(value *big.Rat) *Value {
 
 func NewFunctionValue(value *Function) *Value {
 	return &Value{Type: FunctionValue, Function: value}
-}
-
-func NewBooleanValue(value bool) *Value {
-	return &Value{Type: BooleanValue, Boolean: value}
 }
 
 func NewListValue() *Value {

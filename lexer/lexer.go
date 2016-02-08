@@ -165,7 +165,7 @@ func (l *Lexer) Lex() error {
 			if err != nil {
 				return err
 			}
-		case l.current() == '+', l.current() == '-', l.current() == '*', l.current() == '/':
+		case l.current() == '+', l.current() == '-', l.current() == '*', l.current() == '/', l.current() == '=':
 			l.consume()
 			l.addToken(Identifier)
 		case l.current() == ':' && l.hasNext() && isIdentifierStart(l.peek(1)):
