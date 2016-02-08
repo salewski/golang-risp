@@ -50,11 +50,11 @@ func (b *Block) evalKeyword(node *parser.KeywordNode) *Value {
 func (b *Block) evalIdentifier(node *parser.IdentifierNode) (*Value, error) {
 	name := node.Token.Data
 
-	if b.Scope.Symbols[name] == nil {
+	if b.Scope.Get(name) == nil {
 		return nil, NewRuntimeError(node.Pos(), "unknown symbol '%s'", name)
 	}
 
-	return b.Scope.Symbols[name], nil
+	return b.Scope.Get(name), nil
 }
 
 func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
@@ -66,11 +66,11 @@ func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
 
 	name := nameNode.Token.Data
 
-	if b.Scope.Symbols[name] == nil {
+	if !b.Scope.Has(name) {
 		return nil, NewRuntimeError(node.Pos(), "unknown function '%s'", name)
 	}
 
-	value := b.Scope.Symbols[name]
+	value := b.Scope.Get(name)
 
 	if value.Type != FunctionValue {
 		return nil, NewRuntimeError(node.Pos(), "'%s' is not a function", name)
