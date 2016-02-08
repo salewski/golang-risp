@@ -6,18 +6,27 @@ import (
 	"math/big"
 )
 
-func Apply(block *runtime.Block) {
-	block.Scope.Symbols["t"] = runtime.NewBooleanValue(true)
-	block.Scope.Symbols["f"] = runtime.NewBooleanValue(false)
-	block.Scope.Symbols["nil"] = runtime.Nil
-	block.Scope.Symbols["print"] = runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPrint, "print"))
-	block.Scope.Symbols["list"] = runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdList, "list"))
-	block.Scope.Symbols["+"] = runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdAdd, "+"))
+var Symbols = runtime.Symtab{
+	"t":       runtime.NewBooleanValue(true),
+	"f":       runtime.NewBooleanValue(false),
+	"nil":     runtime.Nil,
+	"print":   runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPrint, "print")),
+	"println": runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPrintln, "println")),
+	"list":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdList, "list")),
+	"+":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdAdd, "+")),
 }
 
 func stdPrint(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	for _, arg := range context.Args {
 		fmt.Print(arg)
+	}
+
+	return runtime.Nil, nil
+}
+
+func stdPrintln(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	for _, arg := range context.Args {
+		fmt.Println(arg)
 	}
 
 	return runtime.Nil, nil

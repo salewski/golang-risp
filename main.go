@@ -44,8 +44,7 @@ func runFile(name string) {
 		fmt.Println(p.ToJson())
 	} else {
 		b := runtime.NewBlock(p.Nodes, runtime.NewScope(nil))
-
-		std.Apply(b)
+		b.Scope.Apply(std.Symbols)
 
 		_, err := b.Eval()
 
@@ -59,8 +58,7 @@ func runRepl() {
 	var tokens []*lexer.Token
 
 	b := runtime.NewBlock(nil, runtime.NewScope(nil))
-
-	std.Apply(b)
+	b.Scope.Apply(std.Symbols)
 
 	depth := 0
 

@@ -1,13 +1,21 @@
 package runtime
 
+type Symtab map[string]*Value
+
 type Scope struct {
-	Symbols map[string]*Value
+	Symbols Symtab
 	parent  *Scope
 }
 
 func NewScope(parent *Scope) *Scope {
 	return &Scope{
-		Symbols: make(map[string]*Value),
+		Symbols: make(Symtab),
 		parent:  parent,
+	}
+}
+
+func (s *Scope) Apply(symbols Symtab) {
+	for key, value := range symbols {
+		s.Symbols[key] = value
 	}
 }
