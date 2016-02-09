@@ -62,11 +62,11 @@ func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
 		return nil, NewRuntimeError(node.Pos(), "invalid list notation: expected a function or macro name")
 	}
 
-	if _, ok := node.Nodes[0].(*parser.IdentifierNode); !ok {
+	nameNode, ok := node.Nodes[0].(*parser.IdentifierNode)
+
+	if !ok {
 		return nil, NewRuntimeError(node.Nodes[0].Pos(), "invalid list notation: expected an identifier")
 	}
-
-	nameNode := node.Nodes[0].(*parser.IdentifierNode)
 
 	name := nameNode.Token.Data
 

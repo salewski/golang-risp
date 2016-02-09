@@ -114,14 +114,14 @@ func runRepl() {
 				if err != nil {
 					reportError(err, true)
 				} else {
-					b.Nodes = p.Nodes
+					for _, node := range p.Nodes {
+						result, err := b.EvalNode(node)
 
-					result, err := b.Eval()
-
-					if err != nil {
-						reportError(err, true)
-					} else {
-						fmt.Println(util.Yellow("===> " + result.String()))
+						if err != nil {
+							reportError(err, true)
+						} else {
+							fmt.Println(util.Yellow("===> " + result.String()))
+						}
 					}
 				}
 			}
