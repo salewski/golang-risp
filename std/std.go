@@ -27,6 +27,7 @@ var Symbols = runtime.Symtab{
 	"and":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdAnd, "and")),
 	"or":      runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdOr, "or")),
 	"not":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdNot, "not")),
+	"call":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdCall, "call")),
 }
 
 var Macros = runtime.Mactab{
@@ -270,4 +271,20 @@ func stdNot(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	} else {
 		return runtime.True, nil
 	}
+}
+
+func stdCall(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	if len(context.Args) < 1 {
+		return nil, runtime.NewRuntimeError(context.Pos, "expected a function")
+	}
+
+	function := context.Args[0].Function
+
+	var args []*runtime.Value
+
+	for _, arg := range context.Args[1:] {
+		args = append(args, arg)
+	}
+
+	return function.Call(context.Block, args, context.Pos)
 }
