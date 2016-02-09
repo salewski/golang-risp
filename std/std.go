@@ -23,6 +23,7 @@ var Symbols = runtime.Symtab{
 	">=":      runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, ">=")),
 	"<":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, "<")),
 	"<=":      runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, "<=")),
+	"cat":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdCat, "cat")),
 }
 
 var Macros = runtime.Mactab{
@@ -150,4 +151,14 @@ func stdEquals(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	} else {
 		return runtime.False, nil
 	}
+}
+
+func stdCat(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	s := ""
+
+	for _, arg := range context.Args {
+		s += arg.String()
+	}
+
+	return runtime.NewStringValue(s), nil
 }

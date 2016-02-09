@@ -1,0 +1,5 @@
+(defun greet (name) (println (cat "Hello " name)))
+
+(greet "Raoul")
+(greet "Felix")
+(greet "Liam")
