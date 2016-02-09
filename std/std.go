@@ -31,6 +31,8 @@ var Symbols = runtime.Symtab{
 
 var Macros = runtime.Mactab{
 	"defun": runtime.NewMacro(stdDefun, "identifier", "list", "list"),
+	"if":    runtime.NewMacro(stdIf, "any", "any"),
+	"ifel":  runtime.NewMacro(stdIfel, "any", "any", "any"),
 }
 
 func stdDefun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
@@ -55,6 +57,46 @@ func stdDefun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (
 	block.Scope.SetSymbol(name, runtime.NewFunctionValue(function))
 
 	return runtime.Nil, nil
+}
+
+// if and elif are macros because the last argument, the callback
+// can't be evaluated if the condition is false.
+func stdIf(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
+	conditionNode := nodes[0]
+	condition, err := block.EvalNode(conditionNode)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if condition.Type != runtime.BooleanValue {
+		return nil, runtime.NewRuntimeError(conditionNode.Pos(), "expected a boolean")
+	}
+
+	if condition.Boolean == true {
+		return block.EvalNode(nodes[1])
+	} else {
+		return runtime.Nil, nil
+	}
+}
+
+func stdIfel(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
+	conditionNode := nodes[0]
+	condition, err := block.EvalNode(conditionNode)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if condition.Type != runtime.BooleanValue {
+		return nil, runtime.NewRuntimeError(conditionNode.Pos(), "expected a boolean")
+	}
+
+	if condition.Boolean == true {
+		return block.EvalNode(nodes[1])
+	} else {
+		return block.EvalNode(nodes[2])
+	}
 }
 
 func stdPrint(context *runtime.FunctionCallContext) (*runtime.Value, error) {
