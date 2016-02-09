@@ -24,6 +24,9 @@ var Symbols = runtime.Symtab{
 	"<":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, "<")),
 	"<=":      runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, "<=")),
 	"cat":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdCat, "cat")),
+	"and":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdAnd, "and")),
+	"or":      runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdOr, "or")),
+	"not":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdNot, "not")),
 }
 
 var Macros = runtime.Mactab{
@@ -161,4 +164,46 @@ func stdCat(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	}
 
 	return runtime.NewStringValue(s), nil
+}
+
+func stdAnd(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.BooleanValue, runtime.BooleanValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if context.Args[0].Boolean && context.Args[1].Boolean {
+		return runtime.True, nil
+	} else {
+		return runtime.False, nil
+	}
+}
+
+func stdOr(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.BooleanValue, runtime.BooleanValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if context.Args[0].Boolean || context.Args[1].Boolean {
+		return runtime.True, nil
+	} else {
+		return runtime.False, nil
+	}
+}
+
+func stdNot(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.BooleanValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if context.Args[0].Boolean == true {
+		return runtime.False, nil
+	} else {
+		return runtime.True, nil
+	}
 }
