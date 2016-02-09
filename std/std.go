@@ -32,6 +32,7 @@ var Symbols = runtime.Symtab{
 
 var Macros = runtime.Mactab{
 	"defun": runtime.NewMacro(stdDefun, "identifier", "list", "list"),
+	"def":   runtime.NewMacro(stdDef, "identifier", "any"),
 	"fun":   runtime.NewMacro(stdFun, "list", "list"),
 	"if":    runtime.NewMacro(stdIf, "any", "any"),
 	"ifel":  runtime.NewMacro(stdIfel, "any", "any", "any"),
@@ -57,6 +58,19 @@ func stdDefun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (
 	function := runtime.NewDeclaredFunction(functionBlock, name, args)
 
 	block.Scope.SetSymbol(name, runtime.NewFunctionValue(function))
+
+	return runtime.Nil, nil
+}
+
+func stdDef(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
+	name := nodes[0].(*parser.IdentifierNode).Token.Data
+	value, err := block.EvalNode(nodes[1])
+
+	if err != nil {
+		return nil, err
+	}
+
+	block.Scope.SetSymbol(name, value)
 
 	return runtime.Nil, nil
 }
