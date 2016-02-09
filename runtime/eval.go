@@ -6,7 +6,7 @@ func (b *Block) Eval() (*Value, error) {
 	var result *Value = Nil
 
 	for _, n := range b.Nodes {
-		r, err := b.evalNode(n)
+		r, err := b.EvalNode(n)
 
 		if err != nil {
 			return nil, err
@@ -18,7 +18,7 @@ func (b *Block) Eval() (*Value, error) {
 	return result, nil
 }
 
-func (b *Block) evalNode(node parser.Node) (*Value, error) {
+func (b *Block) EvalNode(node parser.Node) (*Value, error) {
 	switch node := node.(type) {
 	case *parser.StringNode:
 		return b.evalString(node), nil
@@ -86,7 +86,7 @@ func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
 			}
 		}
 
-		return macro.Handler(macro, args)
+		return macro.Handler(macro, b, args)
 	} else {
 		if !b.Scope.HasSymbol(name) {
 			return nil, NewRuntimeError(node.Pos(), "unknown function '%s'", name)
@@ -101,7 +101,7 @@ func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
 		var args []*Value
 
 		for _, argNode := range node.Nodes[1:] {
-			arg, err := b.evalNode(argNode)
+			arg, err := b.EvalNode(argNode)
 
 			if err != nil {
 				return nil, err

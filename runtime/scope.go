@@ -31,6 +31,10 @@ func (s *Scope) GetSymbol(key string) *Value {
 	return s.symbols[key]
 }
 
+func (s *Scope) SetSymbol(key string, value *Value) {
+	s.symbols[key] = value
+}
+
 func (s *Scope) HasSymbol(key string) bool {
 	return s.GetSymbol(key) != nil
 }

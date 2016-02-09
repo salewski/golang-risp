@@ -29,6 +29,14 @@ func (f *Function) Call(block *Block, args []*Value, pos *lexer.TokenPos) (*Valu
 			Pos:   pos,
 		})
 	case Declared:
+		if len(args) != len(f.DeclaredArgs) {
+			return nil, NewRuntimeError(pos, "'%s' expected %d arguments, got %d", f.Name, len(f.DeclaredArgs), len(args))
+		}
+
+		for i, argName := range f.DeclaredArgs {
+			f.Declared.Scope.SetSymbol(argName, args[i])
+		}
+
 		return f.Declared.Eval()
 	}
 

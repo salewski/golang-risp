@@ -2,7 +2,7 @@ package runtime
 
 import "github.com/raoulvdberge/risp/parser"
 
-type MacroHandler func(*Macro, []parser.Node) (*Value, error)
+type MacroHandler func(*Macro, *Block, []parser.Node) (*Value, error)
 
 type Macro struct {
 	Types   []string

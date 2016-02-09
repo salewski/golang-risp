@@ -22,11 +22,29 @@ var Symbols = runtime.Symtab{
 }
 
 var Macros = runtime.Mactab{
-	"defun": runtime.NewMacro(stdDefun, "identifier", "list"),
+	"defun": runtime.NewMacro(stdDefun, "identifier", "list", "list"),
 }
 
-func stdDefun(macro *runtime.Macro, nodes []parser.Node) (*runtime.Value, error) {
-	fmt.Println("DEFUN Name: " + nodes[0].(*parser.IdentifierNode).Token.Data)
+func stdDefun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
+	name := nodes[0].(*parser.IdentifierNode).Token.Data
+	callback := nodes[2].(*parser.ListNode)
+	argNodes := nodes[1].(*parser.ListNode)
+	var args []string
+
+	for _, argNode := range argNodes.Nodes {
+		ident, ok := argNode.(*parser.IdentifierNode)
+
+		if !ok {
+			return nil, runtime.NewRuntimeError(argNode.Pos(), "expected an identifier")
+		}
+
+		args = append(args, ident.Token.Data)
+	}
+
+	functionBlock := runtime.NewBlock([]parser.Node{callback}, runtime.NewScope(block.Scope))
+	function := runtime.NewDeclaredFunction(functionBlock, name, args)
+
+	block.Scope.SetSymbol(name, runtime.NewFunctionValue(function))
 
 	return runtime.Nil, nil
 }
