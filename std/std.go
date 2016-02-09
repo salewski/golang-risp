@@ -31,15 +31,16 @@ var Symbols = runtime.Symtab{
 
 var Macros = runtime.Mactab{
 	"defun": runtime.NewMacro(stdDefun, "identifier", "list", "list"),
+	"fun":   runtime.NewMacro(stdFun, "list", "list"),
 	"if":    runtime.NewMacro(stdIf, "any", "any"),
 	"ifel":  runtime.NewMacro(stdIfel, "any", "any", "any"),
 }
 
 func stdDefun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
 	name := nodes[0].(*parser.IdentifierNode).Token.Data
-	callback := nodes[2].(*parser.ListNode)
 	argNodes := nodes[1].(*parser.ListNode)
 	var args []string
+	callback := nodes[2].(*parser.ListNode)
 
 	for _, argNode := range argNodes.Nodes {
 		ident, ok := argNode.(*parser.IdentifierNode)
@@ -57,6 +58,27 @@ func stdDefun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (
 	block.Scope.SetSymbol(name, runtime.NewFunctionValue(function))
 
 	return runtime.Nil, nil
+}
+
+func stdFun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
+	argNodes := nodes[0].(*parser.ListNode)
+	var args []string
+	callback := nodes[1].(*parser.ListNode)
+
+	for _, argNode := range argNodes.Nodes {
+		ident, ok := argNode.(*parser.IdentifierNode)
+
+		if !ok {
+			return nil, runtime.NewRuntimeError(argNode.Pos(), "expected an identifier")
+		}
+
+		args = append(args, ident.Token.Data)
+	}
+
+	functionBlock := runtime.NewBlock([]parser.Node{callback}, runtime.NewScope(block.Scope))
+	function := runtime.NewLambdaFunction(functionBlock, args)
+
+	return runtime.NewFunctionValue(function), nil
 }
 
 // if and elif are macros because the last argument, the callback

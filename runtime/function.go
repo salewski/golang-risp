@@ -9,14 +9,17 @@ type FunctionType int
 const (
 	Builtin FunctionType = iota
 	Declared
+	Lambda
 )
 
 type Function struct {
-	Type         FunctionType
-	Builtin      BuiltinFunction
-	Declared     *Block
-	DeclaredArgs []string
-	Name         string
+	Type FunctionType
+	Name string
+	// for builtin functions
+	Builtin BuiltinFunction
+	// for lambdas and declared functions
+	Callback *Block
+	Args     []string
 }
 
 func (f *Function) Call(block *Block, args []*Value, pos *lexer.TokenPos) (*Value, error) {
@@ -28,16 +31,16 @@ func (f *Function) Call(block *Block, args []*Value, pos *lexer.TokenPos) (*Valu
 			Name:  f.Name,
 			Pos:   pos,
 		})
-	case Declared:
-		if len(args) != len(f.DeclaredArgs) {
-			return nil, NewRuntimeError(pos, "'%s' expected %d arguments, got %d", f.Name, len(f.DeclaredArgs), len(args))
+	case Declared, Lambda:
+		if len(args) != len(f.Args) {
+			return nil, NewRuntimeError(pos, "'%s' expected %d arguments, got %d", f.Name, len(f.Args), len(args))
 		}
 
-		for i, argName := range f.DeclaredArgs {
-			f.Declared.Scope.SetSymbol(argName, args[i])
+		for i, argName := range f.Args {
+			f.Callback.Scope.SetSymbol(argName, args[i])
 		}
 
-		return f.Declared.Eval()
+		return f.Callback.Eval()
 	}
 
 	return nil, nil
@@ -48,7 +51,11 @@ func NewBuiltinFunction(function BuiltinFunction, name string) *Function {
 }
 
 func NewDeclaredFunction(block *Block, name string, args []string) *Function {
-	return &Function{Type: Declared, Declared: block, DeclaredArgs: args, Name: name}
+	return &Function{Type: Declared, Callback: block, Args: args, Name: name}
+}
+
+func NewLambdaFunction(block *Block, args []string) *Function {
+	return &Function{Type: Lambda, Callback: block, Args: args, Name: "<lambda>"}
 }
 
 type FunctionCallContext struct {
