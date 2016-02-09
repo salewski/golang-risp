@@ -12,10 +12,11 @@ const (
 )
 
 type Function struct {
-	Type     FunctionType
-	Builtin  BuiltinFunction
-	Declared *Block
-	Name     string
+	Type         FunctionType
+	Builtin      BuiltinFunction
+	Declared     *Block
+	DeclaredArgs []string
+	Name         string
 }
 
 func (f *Function) Call(block *Block, args []*Value, pos *lexer.TokenPos) (*Value, error) {
@@ -38,8 +39,8 @@ func NewBuiltinFunction(function BuiltinFunction, name string) *Function {
 	return &Function{Type: Builtin, Builtin: function, Name: name}
 }
 
-func NewDeclaredFunction(block *Block, name string) *Function {
-	return &Function{Type: Declared, Declared: block, Name: name}
+func NewDeclaredFunction(block *Block, name string, args []string) *Function {
+	return &Function{Type: Declared, Declared: block, DeclaredArgs: args, Name: name}
 }
 
 type FunctionCallContext struct {

@@ -2,6 +2,7 @@ package std
 
 import (
 	"fmt"
+	"github.com/raoulvdberge/risp/parser"
 	"github.com/raoulvdberge/risp/runtime"
 	"math/big"
 )
@@ -18,6 +19,16 @@ var Symbols = runtime.Symtab{
 	"*":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "*")),
 	"/":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "/")),
 	"=":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdEquals, "=")),
+}
+
+var Macros = runtime.Mactab{
+	"defun": runtime.NewMacro(stdDefun, "identifier", "list"),
+}
+
+func stdDefun(macro *runtime.Macro, nodes []parser.Node) (*runtime.Value, error) {
+	fmt.Println("DEFUN Name: " + nodes[0].(*parser.IdentifierNode).Token.Data)
+
+	return runtime.Nil, nil
 }
 
 func stdPrint(context *runtime.FunctionCallContext) (*runtime.Value, error) {

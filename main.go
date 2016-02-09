@@ -64,7 +64,8 @@ func run(source lexer.Source) {
 		fmt.Println(string(bytes))
 	} else {
 		b := runtime.NewBlock(p.Nodes, runtime.NewScope(nil))
-		b.Scope.Apply(std.Symbols)
+		b.Scope.ApplySymbols(std.Symbols)
+		b.Scope.ApplyMacros(std.Macros)
 
 		_, err := b.Eval()
 
@@ -78,7 +79,8 @@ func runRepl() {
 	var tokens []*lexer.Token
 
 	b := runtime.NewBlock(nil, runtime.NewScope(nil))
-	b.Scope.Apply(std.Symbols)
+	b.Scope.ApplySymbols(std.Symbols)
+	b.Scope.ApplyMacros(std.Macros)
 
 	depth := 0
 

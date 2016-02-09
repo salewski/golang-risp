@@ -97,17 +97,6 @@ func (p *Parser) nextNode() (Node, error) {
 
 		listNode.Nodes = parser.Nodes
 
-		if len(listNode.Nodes) < 1 {
-			return nil, lexer.NewSyntaxError(t.Pos, "invalid list notation: needs a function name")
-		}
-
-		switch listNode.Nodes[0].(type) {
-		case *IdentifierNode:
-			// ok
-		default:
-			return nil, lexer.NewSyntaxError(listNode.Nodes[0].Pos(), "invalid list notation: expected an identifier")
-		}
-
 		node = listNode
 	default:
 		return nil, lexer.NewSyntaxError(t.Pos, "unexpected token '%s'", t.Data)

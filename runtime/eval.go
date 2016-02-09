@@ -50,43 +50,66 @@ func (b *Block) evalKeyword(node *parser.KeywordNode) *Value {
 func (b *Block) evalIdentifier(node *parser.IdentifierNode) (*Value, error) {
 	name := node.Token.Data
 
-	if b.Scope.Get(name) == nil {
+	if !b.Scope.HasSymbol(name) {
 		return nil, NewRuntimeError(node.Pos(), "unknown symbol '%s'", name)
 	}
 
-	return b.Scope.Get(name), nil
+	return b.Scope.GetSymbol(name), nil
 }
 
 func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
 	if len(node.Nodes) < 1 {
-		return nil, NewRuntimeError(node.Pos(), "malformed function call")
+		return nil, NewRuntimeError(node.Pos(), "invalid list notation: expected a function or macro name")
+	}
+
+	if _, ok := node.Nodes[0].(*parser.IdentifierNode); !ok {
+		return nil, NewRuntimeError(node.Nodes[0].Pos(), "invalid list notation: expected an identifier")
 	}
 
 	nameNode := node.Nodes[0].(*parser.IdentifierNode)
 
 	name := nameNode.Token.Data
 
-	if !b.Scope.Has(name) {
-		return nil, NewRuntimeError(node.Pos(), "unknown function '%s'", name)
-	}
+	if b.Scope.HasMacro(name) {
+		macro := b.Scope.GetMacro(name)
+		args := node.Nodes[1:] // omit the macro name
 
-	value := b.Scope.Get(name)
-
-	if value.Type != FunctionValue {
-		return nil, NewRuntimeError(node.Pos(), "'%s' is not a function", name)
-	}
-
-	var args []*Value
-
-	for _, argNode := range node.Nodes[1:] {
-		arg, err := b.evalNode(argNode)
-
-		if err != nil {
-			return nil, err
+		if len(macro.Types) != len(args) {
+			return nil, NewRuntimeError(node.Pos(), "macro '%s' expected %d arguments, got %d", name, len(macro.Types), len(args))
 		}
 
-		args = append(args, arg)
-	}
+		for i, macroArg := range macro.Types {
+			if macroArg != "any" {
+				if macroArg != args[i].Name() {
+					return nil, NewRuntimeError(node.Pos(), "macro '%s' expected that argument %d should be of type %s, not %s", name, i+1, macroArg, args[i].Name())
+				}
+			}
+		}
 
-	return value.Function.Call(b, args, node.Pos())
+		return macro.Handler(macro, args)
+	} else {
+		if !b.Scope.HasSymbol(name) {
+			return nil, NewRuntimeError(node.Pos(), "unknown function '%s'", name)
+		}
+
+		value := b.Scope.GetSymbol(name)
+
+		if value.Type != FunctionValue {
+			return nil, NewRuntimeError(node.Pos(), "'%s' is not a function", name)
+		}
+
+		var args []*Value
+
+		for _, argNode := range node.Nodes[1:] {
+			arg, err := b.evalNode(argNode)
+
+			if err != nil {
+				return nil, err
+			}
+
+			args = append(args, arg)
+		}
+
+		return value.Function.Call(b, args, node.Pos())
+	}
 }
