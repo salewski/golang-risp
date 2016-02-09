@@ -19,6 +19,10 @@ var Symbols = runtime.Symtab{
 	"*":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "*")),
 	"/":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "/")),
 	"=":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdEquals, "=")),
+	">":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, ">")),
+	">=":      runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, ">=")),
+	"<":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, "<")),
+	"<=":      runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, "<=")),
 }
 
 var Macros = runtime.Mactab{
@@ -102,6 +106,36 @@ func stdMath(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	}
 
 	return runtime.NewNumberValueFromRat(callback(context.Args[0].Number, context.Args[1].Number)), nil
+}
+
+func stdMathCmp(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	n1 := context.Args[0].Number
+	n2 := context.Args[1].Number
+
+	ok := false
+
+	switch context.Name {
+	case ">":
+		ok = n1.Cmp(n2) == 1
+	case ">=":
+		ok = n1.Cmp(n2) >= 0
+	case "<":
+		ok = n1.Cmp(n2) == -1
+	case "<=":
+		ok = n1.Cmp(n2) <= 0
+	}
+
+	if ok {
+		return runtime.True, nil
+	} else {
+		return runtime.False, nil
+	}
 }
 
 func stdEquals(context *runtime.FunctionCallContext) (*runtime.Value, error) {
