@@ -15,24 +15,16 @@ import (
 )
 
 var (
-	ast       = flag.Bool("ast", false, "dump the abstract syntax tree")
+	repl      = flag.Bool("repl", false, "runs the repl")
+	ast       = flag.Bool("ast", false, "dumps the abstract syntax tree")
 	astIndent = flag.String("ast-indent", "", "the indendentation character for the abstract syntax tree output")
-	fromStdin = flag.Bool("from-stdin", false, "read input from stdin")
 )
 
 func main() {
 	flag.Usage = usage
 	flag.Parse()
 
-	if *fromStdin {
-		bytes, err := ioutil.ReadAll(os.Stdin)
-
-		if err != nil {
-			reportError(err, false)
-		}
-
-		run(lexer.NewSourceFromString("<stdin>", string(bytes)))
-	} else if len(flag.Args()) > 0 {
+	if len(flag.Args()) > 0 {
 		file, err := util.NewFile(flag.Arg(0))
 
 		if err != nil {
@@ -40,8 +32,16 @@ func main() {
 		}
 
 		run(lexer.NewSourceFromFile(file))
-	} else {
+	} else if *repl {
 		runRepl()
+	} else {
+		bytes, err := ioutil.ReadAll(os.Stdin)
+
+		if err != nil {
+			reportError(err, false)
+		}
+
+		run(lexer.NewSourceFromString("<stdin>", string(bytes)))
 	}
 }
 

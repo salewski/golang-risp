@@ -154,3 +154,11 @@ func NewFunctionValue(value *Function) *Value {
 func NewListValue() *Value {
 	return &Value{Type: ListValue}
 }
+
+func BooleanValueFor(value bool) *Value {
+	if value == true {
+		return True
+	} else {
+		return False
+	}
+}

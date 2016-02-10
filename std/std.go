@@ -214,11 +214,7 @@ func stdMathCmp(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 		ok = n1.Cmp(n2) <= 0
 	}
 
-	if ok {
-		return runtime.True, nil
-	} else {
-		return runtime.False, nil
-	}
+	return runtime.BooleanValueFor(ok), nil
 }
 
 func stdEquals(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -228,11 +224,7 @@ func stdEquals(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 		return nil, err
 	}
 
-	if context.Args[0].Equals(context.Args[1]) {
-		return runtime.True, nil
-	} else {
-		return runtime.False, nil
-	}
+	return runtime.BooleanValueFor(context.Args[0].Equals(context.Args[1])), nil
 }
 
 func stdCat(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -252,11 +244,7 @@ func stdAnd(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 		return nil, err
 	}
 
-	if context.Args[0].Boolean && context.Args[1].Boolean {
-		return runtime.True, nil
-	} else {
-		return runtime.False, nil
-	}
+	return runtime.BooleanValueFor(context.Args[0].Boolean && context.Args[1].Boolean), nil
 }
 
 func stdOr(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -266,11 +254,7 @@ func stdOr(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 		return nil, err
 	}
 
-	if context.Args[0].Boolean || context.Args[1].Boolean {
-		return runtime.True, nil
-	} else {
-		return runtime.False, nil
-	}
+	return runtime.BooleanValueFor(context.Args[0].Boolean || context.Args[1].Boolean), nil
 }
 
 func stdNot(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -280,11 +264,7 @@ func stdNot(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 		return nil, err
 	}
 
-	if context.Args[0].Boolean == true {
-		return runtime.False, nil
-	} else {
-		return runtime.True, nil
-	}
+	return runtime.BooleanValueFor(!context.Args[0].Boolean), nil
 }
 
 func stdCall(context *runtime.FunctionCallContext) (*runtime.Value, error) {
