@@ -274,11 +274,5 @@ func stdCall(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 
 	function := context.Args[0].Function
 
-	var args []*runtime.Value
-
-	for _, arg := range context.Args[1:] {
-		args = append(args, arg)
-	}
-
-	return function.Call(context.Block, args, context.Pos)
+	return function.Call(context.Block, context.Args[1:], context.Pos)
 }
