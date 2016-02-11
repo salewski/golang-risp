@@ -37,7 +37,7 @@ var Macros = runtime.Mactab{
 	"defun": runtime.NewMacro(stdDefun, "identifier", "list", "list"),
 	"def":   runtime.NewMacro(stdDef, "identifier", "any"),
 	"fun":   runtime.NewMacro(stdFun, "list", "list"),
-	"for":   runtime.NewMacro(stdFor, "any", "identifier", "list"),
+	"for":   runtime.NewMacro(stdFor, "any", "list", "list"),
 	"while": runtime.NewMacro(stdWhile, "any", "list"),
 	"if":    runtime.NewMacro(stdIf, "any", "any"),
 	"ifel":  runtime.NewMacro(stdIfel, "any", "any", "any"),
@@ -129,12 +129,32 @@ func stdFor(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*r
 		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "expected a list to iterate over")
 	}
 
-	name := nodes[1].(*parser.IdentifierNode).Token.Data
+	var args []string
+
+	for _, nameNode := range nodes[1].(*parser.ListNode).Nodes {
+		ident, isIdent := nameNode.(*parser.IdentifierNode)
+
+		if isIdent {
+			args = append(args, ident.Token.Data)
+		} else {
+			return nil, runtime.NewRuntimeError(nameNode.Pos(), "expected an identifier")
+		}
+	}
+
+	if len(args) > 2 {
+		return nil, runtime.NewRuntimeError(nodes[1].Pos(), "too many arguments provided")
+	}
 
 	callbackBlock := runtime.NewBlock([]parser.Node{nodes[2]}, runtime.NewScope(block.Scope))
 
-	for _, item := range l.List {
-		callbackBlock.Scope.SetSymbol(name, item)
+	for i, item := range l.List {
+		if len(args) >= 1 {
+			callbackBlock.Scope.SetSymbol(args[0], item)
+		}
+
+		if len(args) == 2 {
+			callbackBlock.Scope.SetSymbol(args[1], runtime.NewNumberValueFromInt64(int64(i)))
+		}
 
 		_, err := callbackBlock.Eval()
 
