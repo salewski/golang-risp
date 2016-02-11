@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	repl      = flag.Bool("repl", false, "runs the repl")
-	ast       = flag.Bool("ast", false, "dumps the abstract syntax tree")
-	astIndent = flag.String("ast-indent", "", "the indendentation character for the abstract syntax tree output")
+	repl  = flag.Bool("repl", false, "runs the repl")
+	ast   = flag.Bool("ast", false, "dumps the abstract syntax tree")
+	debug = flag.Bool("debug", false, "enabled debug mode")
 )
 
 func main() {
@@ -25,11 +25,17 @@ func main() {
 	flag.Parse()
 
 	if len(flag.Args()) > 0 {
-		file, err := util.NewFile(flag.Arg(0))
+		var file *util.File
 
-		if err != nil {
-			reportError(err, false)
-		}
+		util.Timed("file reading", *debug, func() {
+			f, err := util.NewFile(flag.Arg(0))
+
+			if err != nil {
+				reportError(err, false)
+			}
+
+			file = f
+		})
 
 		run(lexer.NewSourceFromFile(file))
 	} else if *repl {
@@ -47,19 +53,17 @@ func main() {
 
 func run(source lexer.Source) {
 	l := lexer.NewLexer(source)
-	reportError(l.Lex(), false)
+	util.Timed("lexing", *debug, func() {
+		reportError(l.Lex(), false)
+	})
 
 	p := parser.NewParser(l.Tokens)
-	reportError(p.Parse(), false)
+	util.Timed("parsing", *debug, func() {
+		reportError(p.Parse(), false)
+	})
 
 	if *ast {
-		var bytes []byte
-
-		if *astIndent == "" {
-			bytes, _ = json.Marshal(p)
-		} else {
-			bytes, _ = json.MarshalIndent(p, "", *astIndent)
-		}
+		bytes, _ := json.MarshalIndent(p, "", "    ")
 
 		fmt.Println(string(bytes))
 	} else {
@@ -67,11 +71,13 @@ func run(source lexer.Source) {
 		b.Scope.ApplySymbols(std.Symbols)
 		b.Scope.ApplyMacros(std.Macros)
 
-		_, err := b.Eval()
+		util.Timed("runtime", *debug, func() {
+			_, err := b.Eval()
 
-		if err != nil {
-			reportError(err, false)
-		}
+			if err != nil {
+				reportError(err, false)
+			}
+		})
 	}
 }
 
