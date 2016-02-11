@@ -58,6 +58,34 @@ func (b *Block) evalIdentifier(node *parser.IdentifierNode) (*Value, error) {
 }
 
 func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
+	if len(node.Nodes) > 0 {
+		_, hasIdentifier := node.Nodes[0].(*parser.IdentifierNode)
+
+		if !hasIdentifier {
+			var result *Value
+
+			for _, listNode := range node.Nodes {
+				listResult, err := b.EvalNode(listNode)
+
+				if err != nil {
+					return nil, err
+				}
+
+				b.Scope.SetSymbol("_", listResult)
+
+				result = listResult
+			}
+
+			b.Scope.RemoveSymbol("_")
+
+			return result, nil
+		}
+	}
+
+	return b.evalSingleList(node)
+}
+
+func (b *Block) evalSingleList(node *parser.ListNode) (*Value, error) {
 	if len(node.Nodes) < 1 {
 		return nil, NewRuntimeError(node.Pos(), "invalid list notation: expected a function or macro name")
 	}

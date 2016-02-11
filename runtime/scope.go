@@ -35,6 +35,10 @@ func (s *Scope) SetSymbol(key string, value *Value) {
 	s.symbols[key] = value
 }
 
+func (s *Scope) RemoveSymbol(key string) {
+	delete(s.symbols, key)
+}
+
 func (s *Scope) HasSymbol(key string) bool {
 	return s.GetSymbol(key) != nil
 }
