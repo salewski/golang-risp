@@ -120,7 +120,7 @@ func runRepl() {
 						if err != nil {
 							reportError(err, true)
 						} else {
-							fmt.Println(util.Yellow("===> " + result.String()))
+							fmt.Println(util.Yellow("===> " + result.String() + " (" + result.Type.String() + ")"))
 
 							b.Scope.SetSymbol("_", result)
 						}

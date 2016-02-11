@@ -82,6 +82,8 @@ func (v *Value) String() string {
 		}
 	case KeywordValue:
 		return ":" + v.Keyword
+	case FunctionValue:
+		return v.Function.Name
 	case ListValue:
 		s := "("
 
