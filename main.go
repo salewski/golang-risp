@@ -121,6 +121,8 @@ func runRepl() {
 							reportError(err, true)
 						} else {
 							fmt.Println(util.Yellow("===> " + result.String()))
+
+							b.Scope.SetSymbol("_", result)
 						}
 					}
 				}
