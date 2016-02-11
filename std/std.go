@@ -19,6 +19,7 @@ var Symbols = runtime.Symtab{
 	"*":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "*")),
 	"/":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "/")),
 	"=":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdEquals, "=")),
+	"!=":      runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdNotEquals, "!=")),
 	">":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, ">")),
 	">=":      runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, ">=")),
 	"<":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, "<")),
@@ -281,6 +282,16 @@ func stdEquals(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	}
 
 	return runtime.BooleanValueFor(context.Args[0].Equals(context.Args[1])), nil
+}
+
+func stdNotEquals(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.AnyValue, runtime.AnyValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return runtime.BooleanValueFor(!context.Args[0].Equals(context.Args[1])), nil
 }
 
 func stdCat(context *runtime.FunctionCallContext) (*runtime.Value, error) {
