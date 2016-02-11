@@ -30,6 +30,7 @@ var Symbols = runtime.Symtab{
 	"not":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdNot, "not")),
 	"call":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdCall, "call")),
 	"range":   runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdRange, "range")),
+	"pass":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPass, "pass")),
 }
 
 var Macros = runtime.Mactab{
@@ -374,4 +375,14 @@ func stdRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	}
 
 	return l, nil
+}
+
+func stdPass(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.AnyValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return context.Args[0], nil
 }
