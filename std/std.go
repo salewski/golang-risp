@@ -47,12 +47,16 @@ func stdDefun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (
 	name := nodes[0].(*parser.IdentifierNode).Token.Data
 
 	if name == "_" {
-		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "it is not allowed to use '_' as a symbol name")
+		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "disallowed symbol name")
 	}
 
 	argNodes := nodes[1].(*parser.ListNode)
 	var args []string
 	callback := nodes[2].(*parser.ListNode)
+
+	if len(callback.Nodes) == 0 {
+		return nil, runtime.NewRuntimeError(callback.Pos(), "empty function body")
+	}
 
 	for _, argNode := range argNodes.Nodes {
 		ident, ok := argNode.(*parser.IdentifierNode)
@@ -77,7 +81,7 @@ func stdDef(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*r
 	value, err := block.EvalNode(nodes[1])
 
 	if name == "_" {
-		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "it is not allowed to use '_' as a symbol name")
+		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "disallowed symbol name")
 	}
 
 	if err != nil {
@@ -93,6 +97,10 @@ func stdFun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*r
 	argNodes := nodes[0].(*parser.ListNode)
 	var args []string
 	callback := nodes[1].(*parser.ListNode)
+
+	if len(callback.Nodes) == 0 {
+		return nil, runtime.NewRuntimeError(callback.Pos(), "empty function body")
+	}
 
 	for _, argNode := range argNodes.Nodes {
 		ident, ok := argNode.(*parser.IdentifierNode)
@@ -365,7 +373,7 @@ func stdRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	high := context.Args[1].NumberToInt64()
 
 	if low > high {
-		return nil, runtime.NewRuntimeError(context.Pos, "invalid argument, low can't be higher than high (%d > %d)", low, high)
+		return nil, runtime.NewRuntimeError(context.Pos, "invalid argument(s), low can't be higher than high (%d > %d)", low, high)
 	}
 
 	l := runtime.NewListValue()
@@ -381,7 +389,7 @@ func stdPass(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	err := runtime.ValidateArguments(context, runtime.AnyValue)
 
 	if err != nil {
-		return nil, err
+		return runtime.Nil, nil
 	}
 
 	return context.Args[0], nil
