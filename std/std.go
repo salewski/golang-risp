@@ -35,6 +35,7 @@ var Macros = runtime.Mactab{
 	"defun": runtime.NewMacro(stdDefun, "identifier", "list", "list"),
 	"def":   runtime.NewMacro(stdDef, "identifier", "any"),
 	"fun":   runtime.NewMacro(stdFun, "list", "list"),
+	"for":   runtime.NewMacro(stdFor, "any", "identifier", "list"),
 	"if":    runtime.NewMacro(stdIf, "any", "any"),
 	"ifel":  runtime.NewMacro(stdIfel, "any", "any", "any"),
 }
@@ -95,6 +96,34 @@ func stdFun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*r
 	function := runtime.NewLambdaFunction(functionBlock, args)
 
 	return runtime.NewFunctionValue(function), nil
+}
+
+func stdFor(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
+	l, err := block.EvalNode(nodes[0])
+
+	if err != nil {
+		return nil, err
+	}
+
+	if l.Type != runtime.ListValue {
+		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "expected a list to iterate over")
+	}
+
+	name := nodes[1].(*parser.IdentifierNode).Token.Data
+
+	callbackBlock := runtime.NewBlock([]parser.Node{nodes[2]}, runtime.NewScope(block.Scope))
+
+	for _, item := range l.List {
+		callbackBlock.Scope.SetSymbol(name, item)
+
+		_, err := callbackBlock.Eval()
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return runtime.Nil, nil
 }
 
 // if and elif are macros because the last argument, the callback
@@ -285,9 +314,16 @@ func stdRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 		return nil, err
 	}
 
+	low := context.Args[0].NumberToInt64()
+	high := context.Args[1].NumberToInt64()
+
+	if low > high {
+		return nil, runtime.NewRuntimeError(context.Pos, "invalid argument, low can't be higher than high (%d > %d)", low, high)
+	}
+
 	l := runtime.NewListValue()
 
-	for i := context.Args[0].NumberToInt64(); i < context.Args[1].NumberToInt64(); i++ {
+	for i := low; i < high; i++ {
 		l.List = append(l.List, runtime.NewNumberValueFromInt64(i))
 	}
 
