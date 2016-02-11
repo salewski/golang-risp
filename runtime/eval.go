@@ -89,13 +89,13 @@ func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
 		return macro.Handler(macro, b, args)
 	} else {
 		if !b.Scope.HasSymbol(name) {
-			return nil, NewRuntimeError(node.Pos(), "unknown function '%s'", name)
+			return nil, NewRuntimeError(node.Pos(), "unknown function or a macro '%s'", name)
 		}
 
 		value := b.Scope.GetSymbol(name)
 
 		if value.Type != FunctionValue {
-			return nil, NewRuntimeError(node.Pos(), "'%s' is not a function", name)
+			return nil, NewRuntimeError(node.Pos(), "'%s' is not a function or a macro", name)
 		}
 
 		var args []*Value

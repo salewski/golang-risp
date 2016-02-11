@@ -36,6 +36,7 @@ var Macros = runtime.Mactab{
 	"def":   runtime.NewMacro(stdDef, "identifier", "any"),
 	"fun":   runtime.NewMacro(stdFun, "list", "list"),
 	"for":   runtime.NewMacro(stdFor, "any", "identifier", "list"),
+	"while": runtime.NewMacro(stdWhile, "any", "list"),
 	"if":    runtime.NewMacro(stdIf, "any", "any"),
 	"ifel":  runtime.NewMacro(stdIfel, "any", "any", "any"),
 }
@@ -121,6 +122,31 @@ func stdFor(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*r
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	return runtime.Nil, nil
+}
+
+func stdWhile(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
+recheck:
+	callback, err := block.EvalNode(nodes[0])
+
+	if err != nil {
+		return nil, err
+	}
+
+	if callback.Type != runtime.BooleanValue {
+		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "expected a boolean")
+	}
+
+	if callback.Boolean {
+		_, err := block.EvalNode(nodes[1])
+
+		if err != nil {
+			return nil, err
+		}
+
+		goto recheck
 	}
 
 	return runtime.Nil, nil
