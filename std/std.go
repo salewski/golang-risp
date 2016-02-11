@@ -44,6 +44,11 @@ var Macros = runtime.Mactab{
 
 func stdDefun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
 	name := nodes[0].(*parser.IdentifierNode).Token.Data
+
+	if name == "_" {
+		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "it is not allowed to use '_' as a symbol name")
+	}
+
 	argNodes := nodes[1].(*parser.ListNode)
 	var args []string
 	callback := nodes[2].(*parser.ListNode)
@@ -69,6 +74,10 @@ func stdDefun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (
 func stdDef(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
 	name := nodes[0].(*parser.IdentifierNode).Token.Data
 	value, err := block.EvalNode(nodes[1])
+
+	if name == "_" {
+		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "it is not allowed to use '_' as a symbol name")
+	}
 
 	if err != nil {
 		return nil, err
