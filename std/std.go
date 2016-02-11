@@ -28,6 +28,7 @@ var Symbols = runtime.Symtab{
 	"or":      runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdOr, "or")),
 	"not":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdNot, "not")),
 	"call":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdCall, "call")),
+	"range":   runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdRange, "range")),
 }
 
 var Macros = runtime.Mactab{
@@ -275,4 +276,20 @@ func stdCall(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	function := context.Args[0].Function
 
 	return function.Call(context.Block, context.Args[1:], context.Pos)
+}
+
+func stdRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	l := runtime.NewListValue()
+
+	for i := context.Args[0].NumberToInt64(); i < context.Args[1].NumberToInt64(); i++ {
+		l.List = append(l.List, runtime.NewNumberValueFromInt64(i))
+	}
+
+	return l, nil
 }

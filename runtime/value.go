@@ -52,6 +52,16 @@ type Value struct {
 	Function *Function
 }
 
+func (v *Value) NumberToFloat64() float64 {
+	f, _ := v.Number.Float64()
+
+	return f
+}
+
+func (v *Value) NumberToInt64() int64 {
+	return int64(v.NumberToFloat64())
+}
+
 func (v *Value) String() string {
 	switch v.Type {
 	case StringValue:
@@ -145,6 +155,20 @@ func NewNumberValueFromString(value string) *Value {
 
 func NewNumberValueFromRat(value *big.Rat) *Value {
 	return &Value{Type: NumberValue, Number: value}
+}
+
+func NewNumberValueFromFloat64(value float64) *Value {
+	number := big.NewRat(0, 1)
+	number.SetFloat64(value)
+
+	return &Value{Type: NumberValue, Number: number}
+}
+
+func NewNumberValueFromInt64(value int64) *Value {
+	number := big.NewRat(0, 1)
+	number.SetInt64(value)
+
+	return &Value{Type: NumberValue, Number: number}
 }
 
 func NewFunctionValue(value *Function) *Value {
