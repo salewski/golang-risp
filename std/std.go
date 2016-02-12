@@ -65,6 +65,10 @@ var Macros = runtime.Mactab{
 }
 
 func stdSubstring(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	if (len(context.Args) != 3) {
+		return nil, runtime.NewRuntimeError(context.Pos, "invalid amount of arguments supplied to substring")
+	}
+
 	source := context.Args[0].Str
 
 	start := context.Args[1].Number
