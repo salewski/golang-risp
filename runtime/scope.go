@@ -17,6 +17,10 @@ func NewScope(parent *Scope) *Scope {
 	}
 }
 
+func (s *Scope) IsOuterMost() bool {
+	return s.parent == nil
+}
+
 func (s *Scope) ApplySymbols(symbols Symtab) {
 	for key, value := range symbols {
 		s.symbols[key] = value
