@@ -70,9 +70,7 @@ func run(source lexer.Source) {
 		b := runtime.NewBlock(p.Nodes, runtime.NewScope(nil))
 		b.Scope.ApplySymbols(std.Symbols)
 		b.Scope.ApplyMacros(std.Macros)
-		if b.Scope.IsOuterMost() {
-			b.Scope.ApplySymbols(runtime.Primitives)
-		}
+		b.Scope.ApplySymbols(runtime.Primitives)
 
 		util.Timed("runtime", *debug, func() {
 			_, err := b.Eval()
@@ -90,9 +88,7 @@ func runRepl() {
 	b := runtime.NewBlock(nil, runtime.NewScope(nil))
 	b.Scope.ApplySymbols(std.Symbols)
 	b.Scope.ApplyMacros(std.Macros)
-	if b.Scope.IsOuterMost() {
-		b.Scope.ApplySymbols(runtime.Primitives)
-	}
+	b.Scope.ApplySymbols(runtime.Primitives)
 
 	depth := 0
 
