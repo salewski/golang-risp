@@ -54,7 +54,7 @@ func (b *Block) evalIdentifier(node *parser.IdentifierNode) (*Value, error) {
 		return nil, NewRuntimeError(node.Pos(), "unknown symbol '%s'", name)
 	}
 
-	return b.Scope.GetSymbol(name), nil
+	return b.Scope.GetSymbol(name).Value, nil
 }
 
 func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
@@ -71,7 +71,7 @@ func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
 					return nil, err
 				}
 
-				b.Scope.SetSymbol("_", listResult)
+				b.Scope.SetSymbol("_", NewSymbol(listResult))
 
 				result = listResult
 			}
@@ -127,7 +127,7 @@ func (b *Block) evalSingleList(node *parser.ListNode) (*Value, error) {
 			return nil, NewRuntimeError(node.Pos(), "unknown function or a macro '%s'", name)
 		}
 
-		value := b.Scope.GetSymbol(name)
+		value := b.Scope.GetSymbol(name).Value
 
 		if value.Type != FunctionValue {
 			return nil, NewRuntimeError(node.Pos(), "'%s' is not a function or a macro", name)

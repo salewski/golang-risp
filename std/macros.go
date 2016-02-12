@@ -43,7 +43,7 @@ func stdDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
 
 	function := runtime.NewDeclaredFunction([]parser.Node{callback}, name, args)
 
-	context.Block.Scope.SetSymbol(name, runtime.NewFunctionValue(function))
+	context.Block.Scope.SetSymbol(name, runtime.NewSymbol(runtime.NewFunctionValue(function)))
 
 	return runtime.Nil, nil
 }
@@ -60,7 +60,7 @@ func stdDef(context *runtime.MacroCallContext) (*runtime.Value, error) {
 		return nil, err
 	}
 
-	context.Block.Scope.SetSymbol(name, value)
+	context.Block.Scope.SetSymbol(name, runtime.NewSymbol(value))
 
 	return runtime.Nil, nil
 }
@@ -120,11 +120,11 @@ func stdFor(context *runtime.MacroCallContext) (*runtime.Value, error) {
 
 	for i, item := range l.List {
 		if len(args) >= 1 {
-			callbackBlock.Scope.SetSymbol(args[0], item)
+			callbackBlock.Scope.SetSymbol(args[0], runtime.NewSymbol(item))
 		}
 
 		if len(args) == 2 {
-			callbackBlock.Scope.SetSymbol(args[1], runtime.NewNumberValueFromInt64(int64(i)))
+			callbackBlock.Scope.SetSymbol(args[1], runtime.NewSymbol(runtime.NewNumberValueFromInt64(int64(i))))
 		}
 
 		_, err := callbackBlock.Eval()

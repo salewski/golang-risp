@@ -1,12 +1,20 @@
 package runtime
 
-type Symtab map[string]*Value
+type Symtab map[string]*Symbol
 type Mactab map[string]*Macro
 
 type Scope struct {
 	symbols Symtab
 	macros  Mactab
 	parent  *Scope
+}
+
+type Symbol struct {
+	Value *Value
+}
+
+func NewSymbol(value *Value) *Symbol {
+	return &Symbol{Value: value}
 }
 
 func NewScope(parent *Scope) *Scope {
@@ -23,7 +31,7 @@ func (s *Scope) ApplySymbols(symbols Symtab) {
 	}
 }
 
-func (s *Scope) GetSymbol(key string) *Value {
+func (s *Scope) GetSymbol(key string) *Symbol {
 	if s.symbols[key] == nil && s.parent != nil {
 		return s.parent.GetSymbol(key)
 	}
@@ -31,7 +39,7 @@ func (s *Scope) GetSymbol(key string) *Value {
 	return s.symbols[key]
 }
 
-func (s *Scope) SetSymbol(key string, value *Value) {
+func (s *Scope) SetSymbol(key string, value *Symbol) {
 	s.symbols[key] = value
 }
 

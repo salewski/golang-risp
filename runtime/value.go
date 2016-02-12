@@ -9,9 +9,9 @@ var (
 )
 
 var Primitives = Symtab{
-	"t":       True,
-	"f":       False,
-	"nil":     Nil,
+	"t":   NewSymbol(True),
+	"f":   NewSymbol(False),
+	"nil": NewSymbol(Nil),
 }
 
 type ValueType int
