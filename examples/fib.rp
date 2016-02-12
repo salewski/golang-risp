@@ -8,3 +8,5 @@
 	(print (cat "Fibbonaci Sequence #" i ": "))
 	(println (fib i))
 ))
+
+(export fib)

@@ -6,14 +6,15 @@ import (
 )
 
 var Macros = runtime.Mactab{
-	"defun": runtime.NewMacro(stdDefun, true, "identifier", "list", "list"),
-	"def":   runtime.NewMacro(stdDef, true, "identifier", "any"),
-	"fun":   runtime.NewMacro(stdFun, true, "list", "list"),
-	"for":   runtime.NewMacro(stdFor, true, "any", "list", "list"),
-	"while": runtime.NewMacro(stdWhile, true, "any", "list"),
-	"if":    runtime.NewMacro(stdIf, true, "any", "any"),
-	"ifel":  runtime.NewMacro(stdIfel, true, "any", "any", "any"),
-	"case":  runtime.NewMacro(stdCase, false),
+	"defun":  runtime.NewMacro(stdDefun, true, "identifier", "list", "list"),
+	"def":    runtime.NewMacro(stdDef, true, "identifier", "any"),
+	"fun":    runtime.NewMacro(stdFun, true, "list", "list"),
+	"for":    runtime.NewMacro(stdFor, true, "any", "list", "list"),
+	"while":  runtime.NewMacro(stdWhile, true, "any", "list"),
+	"if":     runtime.NewMacro(stdIf, true, "any", "any"),
+	"ifel":   runtime.NewMacro(stdIfel, true, "any", "any", "any"),
+	"case":   runtime.NewMacro(stdCase, false),
+	"export": runtime.NewMacro(stdExport, false),
 }
 
 func stdDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
@@ -275,6 +276,26 @@ func stdCase(context *runtime.MacroCallContext) (*runtime.Value, error) {
 
 	if otherwise != nil {
 		return context.Block.EvalNode(otherwise)
+	}
+
+	return runtime.Nil, nil
+}
+
+func stdExport(context *runtime.MacroCallContext) (*runtime.Value, error) {
+	for _, node := range context.Nodes {
+		ident, isIdent := node.(*parser.IdentifierNode)
+
+		if !isIdent {
+			return nil, runtime.NewRuntimeError(node.Pos(), "expected an identifier")
+		} else {
+			name := ident.Token.Data
+
+			if !context.Block.Scope.HasSymbol(name) {
+				return nil, runtime.NewRuntimeError(node.Pos(), "unknown symbol '%s'", name)
+			}
+
+			context.Block.Scope.GetSymbol(name).Exported = true
+		}
 	}
 
 	return runtime.Nil, nil

@@ -283,9 +283,21 @@ func stdLoad(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	p := parser.NewParser(l.Tokens)
 	util.ReportError(p.Parse(), false)
 
-	b := runtime.NewBlock(p.Nodes, context.Block.Scope)
+	b := runtime.NewBlock(p.Nodes, runtime.NewScope(context.Block.Scope))
 
-	return b.Eval()
+	result, err := b.Eval()
+
+	if err != nil {
+		return nil, err
+	}
+
+	for key, value := range b.Scope.Symbols {
+		if value.Exported {
+			context.Block.Scope.SetSymbol(key, value)
+		}
+	}
+
+	return result, nil
 }
 
 func stdSimpleMath(context *runtime.FunctionCallContext) (*runtime.Value, error) {
