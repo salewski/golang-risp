@@ -8,6 +8,12 @@ var (
 	False = &Value{Type: BooleanValue, Boolean: false}
 )
 
+var Primitives = Symtab{
+	"t":       True,
+	"f":       False,
+	"nil":     Nil,
+}
+
 type ValueType int
 
 const (

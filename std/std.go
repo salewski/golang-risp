@@ -11,9 +11,6 @@ import (
 )
 
 var Symbols = runtime.Symtab{
-	"t":       runtime.True,
-	"f":       runtime.False,
-	"nil":     runtime.Nil,
 	"print":   runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPrint, "print")),
 	"println": runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPrintln, "println")),
 	"list":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdList, "list")),
