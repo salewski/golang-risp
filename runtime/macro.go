@@ -8,14 +8,16 @@ import (
 type MacroHandler func(*MacroCallContext) (*Value, error)
 
 type Macro struct {
-	Types   []string
-	Handler MacroHandler
+	Types        []string
+	Handler      MacroHandler
+	typeChecking bool
 }
 
-func NewMacro(handler MacroHandler, types ...string) *Macro {
+func NewMacro(handler MacroHandler, typeChecking bool, types ...string) *Macro {
 	return &Macro{
-		Types:   types,
-		Handler: handler,
+		Types:        types,
+		Handler:      handler,
+		typeChecking: typeChecking,
 	}
 }
 

@@ -53,14 +53,14 @@ var Symbols = runtime.Symtab{
 }
 
 var Macros = runtime.Mactab{
-	"defun": runtime.NewMacro(stdDefun, "identifier", "list", "list"),
-	"def":   runtime.NewMacro(stdDef, "identifier", "any"),
-	"fun":   runtime.NewMacro(stdFun, "list", "list"),
-	"for":   runtime.NewMacro(stdFor, "any", "list", "list"),
-	"while": runtime.NewMacro(stdWhile, "any", "list"),
-	"if":    runtime.NewMacro(stdIf, "any", "any"),
-	"ifel":  runtime.NewMacro(stdIfel, "any", "any", "any"),
-	"case":  runtime.NewMacro(stdCase, "any", "variadic"),
+	"defun": runtime.NewMacro(stdDefun, true, "identifier", "list", "list"),
+	"def":   runtime.NewMacro(stdDef, true, "identifier", "any"),
+	"fun":   runtime.NewMacro(stdFun, true, "list", "list"),
+	"for":   runtime.NewMacro(stdFor, true, "any", "list", "list"),
+	"while": runtime.NewMacro(stdWhile, true, "any", "list"),
+	"if":    runtime.NewMacro(stdIf, true, "any", "any"),
+	"ifel":  runtime.NewMacro(stdIfel, true, "any", "any", "any"),
+	"case":  runtime.NewMacro(stdCase, false),
 }
 
 func stdDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
@@ -255,6 +255,10 @@ type caseElement struct {
 }
 
 func stdCase(context *runtime.MacroCallContext) (*runtime.Value, error) {
+	if len(context.Nodes) < 1 {
+		return nil, runtime.NewRuntimeError(context.Pos, "missing value to compare to")
+	}
+
 	matchNode := context.Nodes[0]
 	match, err := context.Block.EvalNode(matchNode)
 
@@ -296,7 +300,7 @@ func stdCase(context *runtime.MacroCallContext) (*runtime.Value, error) {
 
 			if isIdent && ident.Token.Data == "_" {
 				if otherwise != nil {
-					return nil, runtime.NewRuntimeError(ident.Pos(), "match can only contain 1 otherwise case")
+					return nil, runtime.NewRuntimeError(ident.Pos(), "match can only have one otherwise case")
 				}
 
 				i++
@@ -309,8 +313,8 @@ func stdCase(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	}
 
 	for _, elem := range elems {
-		for _, possible := range elem.cases {
-			if possible.Equals(match) {
+		for _, possibility := range elem.cases {
+			if possibility.Equals(match) {
 				return context.Block.EvalNode(elem.callback)
 			}
 		}

@@ -101,26 +101,17 @@ func (b *Block) evalSingleList(node *parser.ListNode) (*Value, error) {
 	if b.Scope.HasMacro(name) {
 		macro := b.Scope.GetMacro(name)
 		args := node.Nodes[1:] // omit the macro name
-		containsVariadic := false
 
-		for _, typ := range macro.Types {
-			if typ == "variadic" {
-				containsVariadic = true
-			}
-		}
-
-		if len(macro.Types) != len(args) && !containsVariadic {
-			return nil, NewRuntimeError(node.Pos(), "macro '%s' expected %d arguments, got %d", name, len(macro.Types), len(args))
-		}
-
-		for i, macroArg := range macro.Types {
-			if macroArg == "variadic" {
-				break
+		if macro.typeChecking {
+			if len(macro.Types) != len(args) {
+				return nil, NewRuntimeError(node.Pos(), "macro '%s' expected %d arguments, got %d", name, len(macro.Types), len(args))
 			}
 
-			if macroArg != "any" {
-				if macroArg != args[i].Name() {
-					return nil, NewRuntimeError(node.Pos(), "macro '%s' expected that argument %d should be of type %s, not %s", name, i+1, macroArg, args[i].Name())
+			for i, macroArg := range macro.Types {
+				if macroArg != "any" {
+					if macroArg != args[i].Name() {
+						return nil, NewRuntimeError(node.Pos(), "macro '%s' expected that argument %d should be of type %s, not %s", name, i+1, macroArg, args[i].Name())
+					}
 				}
 			}
 		}
