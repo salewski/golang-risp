@@ -4,4 +4,7 @@
 	_   (+ (fib (- n 1)) (fib (- n 2)))
 ))
 
-(println (fib 10))
+(for (range 0 21) (i) (
+	(print (cat "Fibbonaci Sequence #" i ": "))
+	(println (fib i))
+))
