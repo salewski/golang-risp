@@ -6,6 +6,7 @@ import (
 	"github.com/raoulvdberge/risp/parser"
 	"github.com/raoulvdberge/risp/runtime"
 	"github.com/raoulvdberge/risp/util"
+	"math"
 	"math/big"
 )
 
@@ -20,6 +21,7 @@ var Symbols = runtime.Symtab{
 	"-":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "-")),
 	"*":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "*")),
 	"/":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMath, "/")),
+	"%":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPow, "%")),
 	"=":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdEquals, "=")),
 	"!=":      runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdNotEquals, "!=")),
 	">":       runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdMathCmp, ">")),
@@ -34,6 +36,20 @@ var Symbols = runtime.Symtab{
 	"range":   runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdRange, "range")),
 	"pass":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPass, "pass")),
 	"load":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdLoad, "load")),
+	"sqrt":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdSimpleMath, "sqrt")),
+	"sin":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdSimpleMath, "sin")),
+	"cos":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdSimpleMath, "cos")),
+	"tan":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdSimpleMath, "tan")),
+	"ceil":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdSimpleMath, "ceil")),
+	"floor":   runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdSimpleMath, "floor")),
+	"abs":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdSimpleMath, "abs")),
+	"log":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdSimpleMath, "log")),
+	"log10":   runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdSimpleMath, "log10")),
+	"pow":     runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPow, "pow")),
+	"deg2rad": runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdDeg2Rad, "deg2rad")),
+	"rad2deg": runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdRad2Deg, "rad2deg")),
+	"pi":      runtime.NewNumberValueFromFloat64(math.Pi),
+	"e":       runtime.NewNumberValueFromFloat64(math.E),
 }
 
 var Macros = runtime.Mactab{
@@ -289,6 +305,16 @@ func stdMath(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	return runtime.NewNumberValueFromRat(callback(context.Args[0].Number, context.Args[1].Number)), nil
 }
 
+func stdMod(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return runtime.NewNumberValueFromInt64(context.Args[0].NumberToInt64() % context.Args[1].NumberToInt64()), nil
+}
+
 func stdMathCmp(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue)
 
@@ -440,4 +466,67 @@ func stdLoad(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	b := runtime.NewBlock(p.Nodes, context.Block.Scope)
 
 	return b.Eval()
+}
+
+func stdSimpleMath(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.NumberValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var callback func(float64) float64
+
+	switch context.Name {
+	case "sqrt":
+		callback = math.Sqrt
+	case "sin":
+		callback = math.Sin
+	case "cos":
+		callback = math.Cos
+	case "tan":
+		callback = math.Tan
+	case "ceil":
+		callback = math.Ceil
+	case "floor":
+		callback = math.Floor
+	case "abs":
+		callback = math.Abs
+	case "log":
+		callback = math.Log
+	case "log10":
+		callback = math.Log10
+	}
+
+	return runtime.NewNumberValueFromFloat64(callback(context.Args[0].NumberToFloat64())), nil
+}
+
+func stdPow(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return runtime.NewNumberValueFromFloat64(math.Pow(context.Args[0].NumberToFloat64(), context.Args[1].NumberToFloat64())), nil
+}
+
+func stdDeg2Rad(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.NumberValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return runtime.NewNumberValueFromFloat64((context.Args[0].NumberToFloat64() * math.Pi) / 180), nil
+}
+
+func stdRad2Deg(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.NumberValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return runtime.NewNumberValueFromFloat64((context.Args[0].NumberToFloat64() * 180) / math.Pi), nil
 }
