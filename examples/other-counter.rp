@@ -1,0 +1,3 @@
+(def to-ten (range 1 11))
+
+(for to-ten (x) (println x))
