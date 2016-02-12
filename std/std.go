@@ -50,6 +50,7 @@ var Symbols = runtime.Symtab{
 	"rad2deg": runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdRad2Deg, "rad2deg")),
 	"pi":      runtime.NewNumberValueFromFloat64(math.Pi),
 	"e":       runtime.NewNumberValueFromFloat64(math.E),
+	"substring": runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdSubstring, "substring")),
 }
 
 var Macros = runtime.Mactab{
@@ -61,6 +62,30 @@ var Macros = runtime.Mactab{
 	"if":    runtime.NewMacro(stdIf, true, "any", "any"),
 	"ifel":  runtime.NewMacro(stdIfel, true, "any", "any", "any"),
 	"case":  runtime.NewMacro(stdCase, false),
+}
+
+func stdSubstring(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	source := context.Args[0].Str
+
+	start := context.Args[1].Number
+	if !start.IsInt() {
+		return nil, runtime.NewRuntimeError(context.Pos, "expected starting index as integer")
+	}
+
+	end := context.Args[2].Number
+	if !end.IsInt() {
+		return nil, runtime.NewRuntimeError(context.Pos, "expected ending index as integer")
+	}
+
+	sourceLen := int64(len(source))
+	startIdx := start.Num().Int64()
+	endIdx := end.Num().Int64()
+	if (startIdx < 0 || startIdx > sourceLen || endIdx < 0 || endIdx > sourceLen) {
+		return nil, runtime.NewRuntimeError(context.Pos, "attempting to slice string out of bounds")
+	}
+
+	result := source[startIdx:endIdx]
+	return runtime.NewStringValue(result), nil
 }
 
 func stdDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {

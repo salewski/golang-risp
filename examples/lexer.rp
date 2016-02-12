@@ -1,0 +1,2 @@
+(println (substring "fuck" 0 2))
+(println (substring "fuck" 2 4))
