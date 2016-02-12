@@ -2,8 +2,10 @@ package std
 
 import (
 	"fmt"
+	"github.com/raoulvdberge/risp/lexer"
 	"github.com/raoulvdberge/risp/parser"
 	"github.com/raoulvdberge/risp/runtime"
+	"github.com/raoulvdberge/risp/util"
 	"math/big"
 )
 
@@ -31,6 +33,7 @@ var Symbols = runtime.Symtab{
 	"call":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdCall, "call")),
 	"range":   runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdRange, "range")),
 	"pass":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdPass, "pass")),
+	"load":    runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdLoad, "load")),
 }
 
 var Macros = runtime.Mactab{
@@ -413,4 +416,28 @@ func stdPass(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	}
 
 	return context.Args[0], nil
+}
+
+func stdLoad(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.StringValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	file, err := util.NewFile(context.Args[0].Str)
+
+	if err != nil {
+		return nil, err
+	}
+
+	l := lexer.NewLexer(lexer.NewSourceFromFile(file))
+	util.ReportError(l.Lex(), false)
+
+	p := parser.NewParser(l.Tokens)
+	util.ReportError(p.Parse(), false)
+
+	b := runtime.NewBlock(p.Nodes, context.Block.Scope)
+
+	return b.Eval()
 }

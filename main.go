@@ -31,7 +31,7 @@ func main() {
 			f, err := util.NewFile(flag.Arg(0))
 
 			if err != nil {
-				reportError(err, false)
+				util.ReportError(err, false)
 			}
 
 			file = f
@@ -44,7 +44,7 @@ func main() {
 		bytes, err := ioutil.ReadAll(os.Stdin)
 
 		if err != nil {
-			reportError(err, false)
+			util.ReportError(err, false)
 		}
 
 		run(lexer.NewSourceFromString("<stdin>", string(bytes)))
@@ -54,12 +54,12 @@ func main() {
 func run(source lexer.Source) {
 	l := lexer.NewLexer(source)
 	util.Timed("lexing", *debug, func() {
-		reportError(l.Lex(), false)
+		util.ReportError(l.Lex(), false)
 	})
 
 	p := parser.NewParser(l.Tokens)
 	util.Timed("parsing", *debug, func() {
-		reportError(p.Parse(), false)
+		util.ReportError(p.Parse(), false)
 	})
 
 	if *ast {
@@ -75,7 +75,7 @@ func run(source lexer.Source) {
 			_, err := b.Eval()
 
 			if err != nil {
-				reportError(err, false)
+				util.ReportError(err, false)
 			}
 		})
 	}
@@ -101,7 +101,7 @@ func runRepl() {
 		err := l.Lex()
 
 		if err != nil {
-			reportError(err, true)
+			util.ReportError(err, true)
 		} else {
 			for _, t := range l.Tokens {
 				tokens = append(tokens, t)
@@ -118,13 +118,13 @@ func runRepl() {
 				depth = 0
 
 				if err != nil {
-					reportError(err, true)
+					util.ReportError(err, true)
 				} else {
 					for _, node := range p.Nodes {
 						result, err := b.EvalNode(node)
 
 						if err != nil {
-							reportError(err, true)
+							util.ReportError(err, true)
 						} else {
 							fmt.Println(util.Yellow("===> " + result.String() + " (" + result.Type.String() + ")"))
 
@@ -133,16 +133,6 @@ func runRepl() {
 					}
 				}
 			}
-		}
-	}
-}
-
-func reportError(err error, recoverable bool) {
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-
-		if !recoverable {
-			os.Exit(1)
 		}
 	}
 }
