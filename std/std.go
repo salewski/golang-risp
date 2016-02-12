@@ -87,8 +87,7 @@ func stdDefun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (
 		args = append(args, ident.Token.Data)
 	}
 
-	functionBlock := runtime.NewBlock([]parser.Node{callback}, runtime.NewScope(block.Scope))
-	function := runtime.NewDeclaredFunction(functionBlock, name, args)
+	function := runtime.NewDeclaredFunction([]parser.Node{callback}, name, args)
 
 	block.Scope.SetSymbol(name, runtime.NewFunctionValue(function))
 
@@ -131,8 +130,7 @@ func stdFun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*r
 		args = append(args, ident.Token.Data)
 	}
 
-	functionBlock := runtime.NewBlock([]parser.Node{callback}, runtime.NewScope(block.Scope))
-	function := runtime.NewLambdaFunction(functionBlock, args)
+	function := runtime.NewLambdaFunction([]parser.Node{callback}, args)
 
 	return runtime.NewFunctionValue(function), nil
 }
