@@ -60,18 +60,19 @@ var Macros = runtime.Mactab{
 	"while": runtime.NewMacro(stdWhile, "any", "list"),
 	"if":    runtime.NewMacro(stdIf, "any", "any"),
 	"ifel":  runtime.NewMacro(stdIfel, "any", "any", "any"),
+	"case":  runtime.NewMacro(stdCase, "any", "variadic"),
 }
 
-func stdDefun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
-	name := nodes[0].(*parser.IdentifierNode).Token.Data
+func stdDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
+	name := context.Nodes[0].(*parser.IdentifierNode).Token.Data
 
 	if name == "_" {
-		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "disallowed symbol name")
+		return nil, runtime.NewRuntimeError(context.Nodes[0].Pos(), "disallowed symbol name")
 	}
 
-	argNodes := nodes[1].(*parser.ListNode)
+	argNodes := context.Nodes[1].(*parser.ListNode)
 	var args []string
-	callback := nodes[2].(*parser.ListNode)
+	callback := context.Nodes[2].(*parser.ListNode)
 
 	if len(callback.Nodes) == 0 {
 		return nil, runtime.NewRuntimeError(callback.Pos(), "empty function body")
@@ -89,32 +90,32 @@ func stdDefun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (
 
 	function := runtime.NewDeclaredFunction([]parser.Node{callback}, name, args)
 
-	block.Scope.SetSymbol(name, runtime.NewFunctionValue(function))
+	context.Block.Scope.SetSymbol(name, runtime.NewFunctionValue(function))
 
 	return runtime.Nil, nil
 }
 
-func stdDef(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
-	name := nodes[0].(*parser.IdentifierNode).Token.Data
-	value, err := block.EvalNode(nodes[1])
+func stdDef(context *runtime.MacroCallContext) (*runtime.Value, error) {
+	name := context.Nodes[0].(*parser.IdentifierNode).Token.Data
+	value, err := context.Block.EvalNode(context.Nodes[1])
 
 	if name == "_" {
-		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "disallowed symbol name")
+		return nil, runtime.NewRuntimeError(context.Nodes[0].Pos(), "disallowed symbol name")
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	block.Scope.SetSymbol(name, value)
+	context.Block.Scope.SetSymbol(name, value)
 
 	return runtime.Nil, nil
 }
 
-func stdFun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
-	argNodes := nodes[0].(*parser.ListNode)
+func stdFun(context *runtime.MacroCallContext) (*runtime.Value, error) {
+	argNodes := context.Nodes[0].(*parser.ListNode)
 	var args []string
-	callback := nodes[1].(*parser.ListNode)
+	callback := context.Nodes[1].(*parser.ListNode)
 
 	if len(callback.Nodes) == 0 {
 		return nil, runtime.NewRuntimeError(callback.Pos(), "empty function body")
@@ -135,20 +136,20 @@ func stdFun(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*r
 	return runtime.NewFunctionValue(function), nil
 }
 
-func stdFor(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
-	l, err := block.EvalNode(nodes[0])
+func stdFor(context *runtime.MacroCallContext) (*runtime.Value, error) {
+	l, err := context.Block.EvalNode(context.Nodes[0])
 
 	if err != nil {
 		return nil, err
 	}
 
 	if l.Type != runtime.ListValue {
-		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "expected a list to iterate over")
+		return nil, runtime.NewRuntimeError(context.Nodes[0].Pos(), "expected a list to iterate over")
 	}
 
 	var args []string
 
-	for _, nameNode := range nodes[1].(*parser.ListNode).Nodes {
+	for _, nameNode := range context.Nodes[1].(*parser.ListNode).Nodes {
 		ident, isIdent := nameNode.(*parser.IdentifierNode)
 
 		if isIdent {
@@ -159,10 +160,10 @@ func stdFor(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*r
 	}
 
 	if len(args) > 2 {
-		return nil, runtime.NewRuntimeError(nodes[1].Pos(), "too many arguments provided")
+		return nil, runtime.NewRuntimeError(context.Nodes[1].Pos(), "too many arguments provided")
 	}
 
-	callbackBlock := runtime.NewBlock([]parser.Node{nodes[2]}, runtime.NewScope(block.Scope))
+	callbackBlock := runtime.NewBlock([]parser.Node{context.Nodes[2]}, runtime.NewScope(context.Block.Scope))
 
 	for i, item := range l.List {
 		if len(args) >= 1 {
@@ -183,20 +184,20 @@ func stdFor(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*r
 	return runtime.Nil, nil
 }
 
-func stdWhile(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
+func stdWhile(context *runtime.MacroCallContext) (*runtime.Value, error) {
 recheck:
-	callback, err := block.EvalNode(nodes[0])
+	callback, err := context.Block.EvalNode(context.Nodes[0])
 
 	if err != nil {
 		return nil, err
 	}
 
 	if callback.Type != runtime.BooleanValue {
-		return nil, runtime.NewRuntimeError(nodes[0].Pos(), "expected a boolean")
+		return nil, runtime.NewRuntimeError(context.Nodes[0].Pos(), "expected a boolean")
 	}
 
 	if callback.Boolean {
-		_, err := block.EvalNode(nodes[1])
+		_, err := context.Block.EvalNode(context.Nodes[1])
 
 		if err != nil {
 			return nil, err
@@ -210,9 +211,9 @@ recheck:
 
 // if and elif are macros because the last argument, the callback
 // can't be evaluated if the condition is false.
-func stdIf(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
-	conditionNode := nodes[0]
-	condition, err := block.EvalNode(conditionNode)
+func stdIf(context *runtime.MacroCallContext) (*runtime.Value, error) {
+	conditionNode := context.Nodes[0]
+	condition, err := context.Block.EvalNode(conditionNode)
 
 	if err != nil {
 		return nil, err
@@ -223,15 +224,15 @@ func stdIf(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*ru
 	}
 
 	if condition.Boolean == true {
-		return block.EvalNode(nodes[1])
+		return context.Block.EvalNode(context.Nodes[1])
 	} else {
 		return runtime.Nil, nil
 	}
 }
 
-func stdIfel(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*runtime.Value, error) {
-	conditionNode := nodes[0]
-	condition, err := block.EvalNode(conditionNode)
+func stdIfel(context *runtime.MacroCallContext) (*runtime.Value, error) {
+	conditionNode := context.Nodes[0]
+	condition, err := context.Block.EvalNode(conditionNode)
 
 	if err != nil {
 		return nil, err
@@ -242,10 +243,84 @@ func stdIfel(macro *runtime.Macro, block *runtime.Block, nodes []parser.Node) (*
 	}
 
 	if condition.Boolean == true {
-		return block.EvalNode(nodes[1])
+		return context.Block.EvalNode(context.Nodes[1])
 	} else {
-		return block.EvalNode(nodes[2])
+		return context.Block.EvalNode(context.Nodes[2])
 	}
+}
+
+type caseElement struct {
+	cases    []*runtime.Value
+	callback parser.Node
+}
+
+func stdCase(context *runtime.MacroCallContext) (*runtime.Value, error) {
+	matchNode := context.Nodes[0]
+	match, err := context.Block.EvalNode(matchNode)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if ((len(context.Nodes) - 1) % 2) != 0 { // -1 because we can't count for the match node too
+		return nil, runtime.NewRuntimeError(context.Pos, "unbalanced case call")
+	}
+
+	var elems []caseElement
+	var otherwise parser.Node
+
+	// we begin at 1 because we need to omit the match node
+	for i := 1; i < len(context.Nodes); i++ {
+		elem := caseElement{}
+
+		list, isList := context.Nodes[i].(*parser.ListNode)
+
+		if isList {
+			for _, caseNode := range list.Nodes {
+				result, err := context.Block.EvalNode(caseNode)
+
+				if err != nil {
+					return nil, err
+				}
+
+				elem.cases = append(elem.cases, result)
+			}
+
+			i++
+
+			elem.callback = context.Nodes[i]
+
+			elems = append(elems, elem)
+		} else {
+			ident, isIdent := context.Nodes[i].(*parser.IdentifierNode)
+
+			if isIdent && ident.Token.Data == "_" {
+				if otherwise != nil {
+					return nil, runtime.NewRuntimeError(ident.Pos(), "match can only contain 1 otherwise case")
+				}
+
+				i++
+
+				otherwise = context.Nodes[i]
+			} else {
+				return nil, runtime.NewRuntimeError(context.Nodes[i].Pos(), "expected a list")
+			}
+		}
+	}
+
+	for _, elem := range elems {
+		for _, possible := range elem.cases {
+			if possible.Equals(match) {
+				return context.Block.EvalNode(elem.callback)
+			}
+		}
+	}
+
+	if otherwise != nil {
+		return context.Block.EvalNode(otherwise)
+	}
+
+	return runtime.Nil, nil
 }
 
 func stdPrint(context *runtime.FunctionCallContext) (*runtime.Value, error) {

@@ -1,13 +1,7 @@
-(defun fib (n)
-	(ifel
-		(= n 0)
-		0
-		(ifel
-			(= n 1)
-			1
-			(+ (fib (- n 1)) (fib (- n 2)))
-		)
-	)
-)
+(defun fib (n) (case n
+	(0) 0
+	(1) 1
+	_   (+ (fib (- n 1)) (fib (- n 2)))
+))
 
 (println (fib 10))

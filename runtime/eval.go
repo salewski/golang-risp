@@ -101,12 +101,23 @@ func (b *Block) evalSingleList(node *parser.ListNode) (*Value, error) {
 	if b.Scope.HasMacro(name) {
 		macro := b.Scope.GetMacro(name)
 		args := node.Nodes[1:] // omit the macro name
+		containsVariadic := false
 
-		if len(macro.Types) != len(args) {
+		for _, typ := range macro.Types {
+			if typ == "variadic" {
+				containsVariadic = true
+			}
+		}
+
+		if len(macro.Types) != len(args) && !containsVariadic {
 			return nil, NewRuntimeError(node.Pos(), "macro '%s' expected %d arguments, got %d", name, len(macro.Types), len(args))
 		}
 
 		for i, macroArg := range macro.Types {
+			if macroArg == "variadic" {
+				break
+			}
+
 			if macroArg != "any" {
 				if macroArg != args[i].Name() {
 					return nil, NewRuntimeError(node.Pos(), "macro '%s' expected that argument %d should be of type %s, not %s", name, i+1, macroArg, args[i].Name())
@@ -114,7 +125,12 @@ func (b *Block) evalSingleList(node *parser.ListNode) (*Value, error) {
 			}
 		}
 
-		return macro.Handler(macro, b, args)
+		return macro.Handler(&MacroCallContext{
+			Macro: macro,
+			Block: b,
+			Nodes: args,
+			Pos:   nameNode.Pos(),
+		})
 	} else {
 		if !b.Scope.HasSymbol(name) {
 			return nil, NewRuntimeError(node.Pos(), "unknown function or a macro '%s'", name)
