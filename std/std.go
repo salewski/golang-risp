@@ -50,6 +50,7 @@ var Symbols = runtime.Symtab{
 	"rad2deg": runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdRad2Deg, "rad2deg")),
 	"pi":      runtime.NewNumberValueFromFloat64(math.Pi),
 	"e":       runtime.NewNumberValueFromFloat64(math.E),
+	"substring": runtime.NewFunctionValue(runtime.NewBuiltinFunction(stdSubstring, "substring")),
 }
 
 var Macros = runtime.Mactab{
@@ -61,6 +62,26 @@ var Macros = runtime.Mactab{
 	"if":    runtime.NewMacro(stdIf, true, "any", "any"),
 	"ifel":  runtime.NewMacro(stdIfel, true, "any", "any", "any"),
 	"case":  runtime.NewMacro(stdCase, false),
+}
+
+func stdSubstring(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.StringValue, runtime.NumberValue, runtime.NumberValue)
+	if err != nil {
+		return nil, err
+	}
+
+	source := context.Args[0].Str
+	start := context.Args[1].NumberToInt64()
+	end := context.Args[2].NumberToInt64()
+
+	sourceLen := int64(len(source))
+	// verify the range isn't shit
+	if (start < 0 || start > sourceLen || end < 0 || end > sourceLen) {
+		return nil, runtime.NewRuntimeError(context.Pos, "attempting to slice string out of bounds")
+	}
+
+	result := source[start:end]
+	return runtime.NewStringValue(result), nil
 }
 
 func stdDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
