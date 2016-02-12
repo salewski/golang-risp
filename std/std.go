@@ -65,30 +65,22 @@ var Macros = runtime.Mactab{
 }
 
 func stdSubstring(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	if (len(context.Args) != 3) {
-		return nil, runtime.NewRuntimeError(context.Pos, "invalid amount of arguments supplied to substring")
+	err := runtime.ValidateArguments(context, runtime.StringValue, runtime.NumberValue, runtime.NumberValue)
+	if err != nil {
+		return nil, err
 	}
 
 	source := context.Args[0].Str
-
-	start := context.Args[1].Number
-	if !start.IsInt() {
-		return nil, runtime.NewRuntimeError(context.Pos, "expected starting index as integer")
-	}
-
-	end := context.Args[2].Number
-	if !end.IsInt() {
-		return nil, runtime.NewRuntimeError(context.Pos, "expected ending index as integer")
-	}
+	start := context.Args[1].NumberToInt64()
+	end := context.Args[2].NumberToInt64()
 
 	sourceLen := int64(len(source))
-	startIdx := start.Num().Int64()
-	endIdx := end.Num().Int64()
-	if (startIdx < 0 || startIdx > sourceLen || endIdx < 0 || endIdx > sourceLen) {
+	// verify the range isn't shit
+	if (start < 0 || start > sourceLen || end < 0 || end > sourceLen) {
 		return nil, runtime.NewRuntimeError(context.Pos, "attempting to slice string out of bounds")
 	}
 
-	result := source[startIdx:endIdx]
+	result := source[start:end]
 	return runtime.NewStringValue(result), nil
 }
 
