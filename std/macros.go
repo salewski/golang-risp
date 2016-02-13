@@ -6,15 +6,16 @@ import (
 )
 
 var Macros = runtime.Mactab{
-	"defun":  runtime.NewMacro(stdDefun, true, "identifier", "list", "list"),
-	"def":    runtime.NewMacro(stdDef, true, "identifier", "any"),
-	"fun":    runtime.NewMacro(stdFun, true, "list", "list"),
-	"for":    runtime.NewMacro(stdFor, true, "any", "list", "list"),
-	"while":  runtime.NewMacro(stdWhile, true, "any", "list"),
-	"if":     runtime.NewMacro(stdIf, true, "any", "any"),
-	"ifel":   runtime.NewMacro(stdIfel, true, "any", "any", "any"),
-	"case":   runtime.NewMacro(stdCase, false),
-	"export": runtime.NewMacro(stdExport, false),
+	"defun":     runtime.NewMacro(stdDefun, true, "identifier", "list", "list"),
+	"def":       runtime.NewMacro(stdDef, true, "identifier", "any"),
+	"fun":       runtime.NewMacro(stdFun, true, "list", "list"),
+	"for":       runtime.NewMacro(stdFor, true, "any", "list", "list"),
+	"while":     runtime.NewMacro(stdWhile, true, "any", "list"),
+	"if":        runtime.NewMacro(stdIf, true, "any", "any"),
+	"ifel":      runtime.NewMacro(stdIfel, true, "any", "any", "any"),
+	"case":      runtime.NewMacro(stdCase, false),
+	"export":    runtime.NewMacro(stdExport, false),
+	"namespace": runtime.NewMacro(stdNamespace, true, "identifier"),
 }
 
 func stdDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
@@ -44,7 +45,7 @@ func stdDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
 
 	function := runtime.NewDeclaredFunction([]parser.Node{callback}, name, args)
 
-	context.Block.Scope.SetSymbol(name, runtime.NewSymbol(runtime.NewFunctionValue(function)))
+	context.Block.Scope.SetSymbol(context.Block.SymbolName(name), runtime.NewSymbol(runtime.NewFunctionValue(function)))
 
 	return runtime.Nil, nil
 }
@@ -61,7 +62,7 @@ func stdDef(context *runtime.MacroCallContext) (*runtime.Value, error) {
 		return nil, err
 	}
 
-	context.Block.Scope.SetSymbol(name, runtime.NewSymbol(value))
+	context.Block.Scope.SetSymbol(context.Block.SymbolName(name), runtime.NewSymbol(value))
 
 	return runtime.Nil, nil
 }
@@ -297,6 +298,14 @@ func stdExport(context *runtime.MacroCallContext) (*runtime.Value, error) {
 			context.Block.Scope.GetSymbol(name).Exported = true
 		}
 	}
+
+	return runtime.Nil, nil
+}
+
+func stdNamespace(context *runtime.MacroCallContext) (*runtime.Value, error) {
+	ident := context.Nodes[0].(*parser.IdentifierNode)
+
+	context.Block.Namespace = ident.Token.Data
 
 	return runtime.Nil, nil
 }

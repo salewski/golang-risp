@@ -1,4 +1,4 @@
 (load "fib.rp")
 
 (print "Wrapper says: ")
-(println (cat "the 15th fibbonaci number is " (fib 15)))
+(println (cat "the 15th fibbonaci number is " (fibbonaci:fib 15)))

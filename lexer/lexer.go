@@ -203,5 +203,5 @@ func isIdentifierStart(r rune) bool {
 }
 
 func isIdentifierPart(r rune) bool {
-	return isIdentifierStart(r) || unicode.IsNumber(r) || r == '-'
+	return isIdentifierStart(r) || unicode.IsNumber(r) || r == '-' || r == ':'
 }
