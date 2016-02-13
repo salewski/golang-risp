@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/peterh/liner"
 	"github.com/raoulvdberge/risp/lexer"
 	"github.com/raoulvdberge/risp/parser"
 	"github.com/raoulvdberge/risp/runtime"
@@ -12,6 +12,7 @@ import (
 	"github.com/raoulvdberge/risp/util"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 var (
@@ -85,6 +86,11 @@ func run(source lexer.Source) {
 }
 
 func runRepl() {
+	line := liner.NewLiner()
+	defer line.Close()
+
+	line.SetCtrlCAborts(true)
+
 	var tokens []*lexer.Token
 
 	b := runtime.NewBlock(nil, runtime.NewScope(nil))
@@ -94,17 +100,50 @@ func runRepl() {
 
 	b.Scope.ApplyMacros(std.Macros)
 
+	line.SetCompleter(func(line string) (c []string) {
+		l := lexer.NewLexer(lexer.NewSourceFromString("", line))
+		l.Formatting = true
+		l.Lex()
+
+		if len(l.Tokens) > 0 {
+			prev := ""
+
+			for i := 0; i < len(l.Tokens)-1; i++ {
+				prev += l.Tokens[i].Data
+			}
+
+			last := l.Tokens[len(l.Tokens)-1]
+
+			if last.Type == lexer.Identifier {
+				for key, _ := range b.Scope.Symbols {
+					if strings.HasPrefix(key, last.Data) {
+						c = append(c, prev+key)
+					}
+				}
+			}
+		}
+
+		return
+	})
+
 	depth := 0
 
 	for {
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("> ")
+		data, err := line.Prompt("> ")
 
-		data, _ := reader.ReadString('\n')
+		if err != nil {
+			if err == liner.ErrPromptAborted {
+				return
+			}
+
+			util.ReportError(err, false)
+		}
+
+		line.AppendHistory(data)
 
 		l := lexer.NewLexer(lexer.NewSourceFromString("<repl>", data))
 
-		err := l.Lex()
+		err = l.Lex()
 
 		if err != nil {
 			util.ReportError(err, true)
@@ -132,12 +171,20 @@ func runRepl() {
 						if err != nil {
 							util.ReportError(err, true)
 						} else {
-							fmt.Println(util.Yellow("===> " + result.String() + " (" + result.Type.String() + ")"))
+							data := util.Yellow("===> " + result.String())
+
+							if result.Type != runtime.NilValue {
+								data += " " + util.Yellow("("+result.Type.String()+")")
+							}
+
+							fmt.Println(data)
 
 							b.Scope.SetSymbol("_", runtime.NewSymbol(result))
 						}
 					}
 				}
+			} else {
+				fmt.Printf("%s===> %d missing closing parenthesis%s\n", util.TEXT_GREEN, depth, util.TEXT_RESET)
 			}
 		}
 	}

@@ -14,16 +14,20 @@ type Lexer struct {
 	data     string
 	source   Source
 	Tokens   []*Token
+	// when this flag is true, the lexer will lex formatting characters as well
+	// this is used in the repl
+	Formatting bool
 }
 
 func NewLexer(source Source) *Lexer {
 	return &Lexer{
-		pos:      0,
-		startPos: 0,
-		line:     1,
-		col:      1,
-		data:     source.Data(),
-		source:   source,
+		pos:        0,
+		startPos:   0,
+		line:       1,
+		col:        1,
+		data:       source.Data(),
+		source:     source,
+		Formatting: false,
 	}
 }
 
@@ -185,7 +189,12 @@ func (l *Lexer) Lex() error {
 		case l.current() == '(', l.current() == ')':
 			l.lexSeparator()
 		case l.current() < ' ', unicode.IsControl(l.current()), unicode.IsSpace(l.current()):
-			l.ignore(1)
+			if l.Formatting {
+				l.consume()
+				l.addToken(Identifier)
+			} else {
+				l.ignore(1)
+			}
 		default:
 			return NewSyntaxError(l.newPos(), "unknown character '%c'", l.current())
 		}
