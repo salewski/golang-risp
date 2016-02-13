@@ -120,6 +120,12 @@ func runRepl() {
 						c = append(c, prev+key)
 					}
 				}
+
+				for key, _ := range b.Scope.Macros {
+					if strings.HasPrefix(key, last.Data) {
+						c = append(c, prev+key)
+					}
+				}
 			}
 		}
 
