@@ -6,7 +6,7 @@
 	_   (+ (fibbonaci:fib (- n 1)) (fibbonaci:fib (- n 2)))
 ))
 
-(for (range 0 21) (i) (
+(for (std:range 0 21) (i) (
 	(print (cat "Fibbonaci Sequence #" i ": "))
 	(println (fibbonaci:fib i))
 ))

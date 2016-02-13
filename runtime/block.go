@@ -16,12 +16,14 @@ func NewBlock(nodes []parser.Node, scope *Scope) *Block {
 	}
 }
 
-func (b *Block) SymbolName(name string) string {
-	n := name
-
-	if b.Namespace != "" {
-		n = b.Namespace + ":" + n
+func SymbolName(namespace string, name string) string {
+	if namespace != "" {
+		name = namespace + ":" + name
 	}
 
-	return n
+	return name
+}
+
+func (b *Block) SymbolName(name string) string {
+	return SymbolName(b.Namespace, name)
 }

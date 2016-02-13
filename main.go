@@ -5,7 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/peterh/liner"
+	"github.com/raoulvdberge/risp/builtin"
 	"github.com/raoulvdberge/risp/lexer"
+	"github.com/raoulvdberge/risp/math"
 	"github.com/raoulvdberge/risp/parser"
 	"github.com/raoulvdberge/risp/runtime"
 	"github.com/raoulvdberge/risp/std"
@@ -52,6 +54,15 @@ func main() {
 	}
 }
 
+func apply(scope *runtime.Scope) {
+	scope.ApplySymbols("", builtin.Symbols)
+	scope.ApplyMacros("", builtin.Macros)
+
+	scope.ApplySymbols("std", std.Symbols)
+
+	scope.ApplySymbols("math", math.Symbols)
+}
+
 func run(source lexer.Source) {
 	l := lexer.NewLexer(source)
 	util.Timed("lexing", *debug, func() {
@@ -70,10 +81,7 @@ func run(source lexer.Source) {
 	} else {
 		b := runtime.NewBlock(p.Nodes, runtime.NewScope(nil))
 
-		b.Scope.ApplySymbols(std.Symbols)
-		b.Scope.ApplySymbols(runtime.Primitives)
-
-		b.Scope.ApplyMacros(std.Macros)
+		apply(b.Scope)
 
 		util.Timed("runtime", *debug, func() {
 			_, err := b.Eval()
@@ -95,10 +103,7 @@ func runRepl() {
 
 	b := runtime.NewBlock(nil, runtime.NewScope(nil))
 
-	b.Scope.ApplySymbols(std.Symbols)
-	b.Scope.ApplySymbols(runtime.Primitives)
-
-	b.Scope.ApplyMacros(std.Macros)
+	apply(b.Scope)
 
 	line.SetCompleter(func(line string) (c []string) {
 		l := lexer.NewLexer(lexer.NewSourceFromString("", line))

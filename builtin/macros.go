@@ -1,4 +1,4 @@
-package std
+package builtin
 
 import (
 	"github.com/raoulvdberge/risp/parser"
@@ -6,19 +6,19 @@ import (
 )
 
 var Macros = runtime.Mactab{
-	"defun":     runtime.NewMacro(stdDefun, true, "identifier", "list", "list"),
-	"def":       runtime.NewMacro(stdDef, true, "identifier", "any"),
-	"fun":       runtime.NewMacro(stdFun, true, "list", "list"),
-	"for":       runtime.NewMacro(stdFor, true, "any", "list", "list"),
-	"while":     runtime.NewMacro(stdWhile, true, "any", "list"),
-	"if":        runtime.NewMacro(stdIf, true, "any", "any"),
-	"ifel":      runtime.NewMacro(stdIfel, true, "any", "any", "any"),
-	"case":      runtime.NewMacro(stdCase, false),
-	"export":    runtime.NewMacro(stdExport, false),
-	"namespace": runtime.NewMacro(stdNamespace, true, "identifier"),
+	"defun":     runtime.NewMacro(builtinDefun, true, "identifier", "list", "list"),
+	"def":       runtime.NewMacro(builtinDef, true, "identifier", "any"),
+	"fun":       runtime.NewMacro(builtinFun, true, "list", "list"),
+	"for":       runtime.NewMacro(builtinFor, true, "any", "list", "list"),
+	"while":     runtime.NewMacro(builtinWhile, true, "any", "list"),
+	"if":        runtime.NewMacro(builtinIf, true, "any", "any"),
+	"ifel":      runtime.NewMacro(builtinIfel, true, "any", "any", "any"),
+	"case":      runtime.NewMacro(builtinCase, false),
+	"export":    runtime.NewMacro(builtinExport, false),
+	"namespace": runtime.NewMacro(builtinNamespace, true, "identifier"),
 }
 
-func stdDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
+func builtinDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	name := context.Nodes[0].(*parser.IdentifierNode).Token.Data
 
 	if name == "_" {
@@ -50,7 +50,7 @@ func stdDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	return runtime.Nil, nil
 }
 
-func stdDef(context *runtime.MacroCallContext) (*runtime.Value, error) {
+func builtinDef(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	name := context.Nodes[0].(*parser.IdentifierNode).Token.Data
 	value, err := context.Block.EvalNode(context.Nodes[1])
 
@@ -67,7 +67,7 @@ func stdDef(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	return runtime.Nil, nil
 }
 
-func stdFun(context *runtime.MacroCallContext) (*runtime.Value, error) {
+func builtinFun(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	argNodes := context.Nodes[0].(*parser.ListNode)
 	var args []string
 	callback := context.Nodes[1].(*parser.ListNode)
@@ -91,7 +91,7 @@ func stdFun(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	return runtime.NewFunctionValue(function), nil
 }
 
-func stdFor(context *runtime.MacroCallContext) (*runtime.Value, error) {
+func builtinFor(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	l, err := context.Block.EvalNode(context.Nodes[0])
 
 	if err != nil {
@@ -139,7 +139,7 @@ func stdFor(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	return runtime.Nil, nil
 }
 
-func stdWhile(context *runtime.MacroCallContext) (*runtime.Value, error) {
+func builtinWhile(context *runtime.MacroCallContext) (*runtime.Value, error) {
 recheck:
 	callback, err := context.Block.EvalNode(context.Nodes[0])
 
@@ -166,7 +166,7 @@ recheck:
 
 // if and elif are macros because the last argument, the callback
 // can't be evaluated if the condition is false.
-func stdIf(context *runtime.MacroCallContext) (*runtime.Value, error) {
+func builtinIf(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	conditionNode := context.Nodes[0]
 	condition, err := context.Block.EvalNode(conditionNode)
 
@@ -185,7 +185,7 @@ func stdIf(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	}
 }
 
-func stdIfel(context *runtime.MacroCallContext) (*runtime.Value, error) {
+func builtinIfel(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	conditionNode := context.Nodes[0]
 	condition, err := context.Block.EvalNode(conditionNode)
 
@@ -209,7 +209,7 @@ type caseElement struct {
 	callback parser.Node
 }
 
-func stdCase(context *runtime.MacroCallContext) (*runtime.Value, error) {
+func builtinCase(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	if len(context.Nodes) < 1 {
 		return nil, runtime.NewRuntimeError(context.Pos, "missing value to compare to")
 	}
@@ -282,7 +282,7 @@ func stdCase(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	return runtime.Nil, nil
 }
 
-func stdExport(context *runtime.MacroCallContext) (*runtime.Value, error) {
+func builtinExport(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	for _, node := range context.Nodes {
 		ident, isIdent := node.(*parser.IdentifierNode)
 
@@ -302,7 +302,7 @@ func stdExport(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	return runtime.Nil, nil
 }
 
-func stdNamespace(context *runtime.MacroCallContext) (*runtime.Value, error) {
+func builtinNamespace(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	ident := context.Nodes[0].(*parser.IdentifierNode)
 
 	context.Block.Namespace = ident.Token.Data

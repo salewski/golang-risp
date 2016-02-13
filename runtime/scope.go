@@ -29,9 +29,9 @@ func NewScope(parent *Scope) *Scope {
 	}
 }
 
-func (s *Scope) ApplySymbols(symbols Symtab) {
+func (s *Scope) ApplySymbols(namespace string, symbols Symtab) {
 	for key, value := range symbols {
-		s.Symbols[key] = value
+		s.Symbols[SymbolName(namespace, key)] = value
 	}
 }
 
@@ -55,9 +55,9 @@ func (s *Scope) HasSymbol(key string) bool {
 	return s.GetSymbol(key) != nil
 }
 
-func (s *Scope) ApplyMacros(macros Mactab) {
+func (s *Scope) ApplyMacros(namespace string, macros Mactab) {
 	for key, value := range macros {
-		s.Macros[key] = value
+		s.Macros[SymbolName(namespace, key)] = value
 	}
 }
 
