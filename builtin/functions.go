@@ -247,5 +247,5 @@ func builtinAssert(context *runtime.FunctionCallContext) (*runtime.Value, error)
 		return nil, runtime.NewRuntimeError(context.Pos, "assertion failed: "+assertionFailedError)
 	}
 
-	return runtime.BooleanValueFor(assertion), nil
+	return runtime.Nil, nil
 }
