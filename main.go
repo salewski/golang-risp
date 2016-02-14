@@ -7,14 +7,15 @@ import (
 	"github.com/peterh/liner"
 	"github.com/raoulvdberge/risp/builtin"
 	"github.com/raoulvdberge/risp/lexer"
+	"github.com/raoulvdberge/risp/lists"
 	"github.com/raoulvdberge/risp/math"
 	"github.com/raoulvdberge/risp/parser"
 	"github.com/raoulvdberge/risp/runtime"
-	"github.com/raoulvdberge/risp/std"
+	"github.com/raoulvdberge/risp/strings"
 	"github.com/raoulvdberge/risp/util"
 	"io/ioutil"
 	"os"
-	"strings"
+	stringsPkg "strings"
 )
 
 var (
@@ -58,8 +59,8 @@ func apply(scope *runtime.Scope) {
 	scope.ApplySymbols("", builtin.Symbols)
 	scope.ApplyMacros("", builtin.Macros)
 
-	scope.ApplySymbols("std", std.Symbols)
-
+	scope.ApplySymbols("lists", lists.Symbols)
+	scope.ApplySymbols("strings", strings.Symbols)
 	scope.ApplySymbols("math", math.Symbols)
 }
 
@@ -121,13 +122,13 @@ func runRepl() {
 
 			if last.Type == lexer.Identifier {
 				for key, _ := range b.Scope.Symbols {
-					if strings.HasPrefix(key, last.Data) {
+					if stringsPkg.HasPrefix(key, last.Data) {
 						c = append(c, prev+key)
 					}
 				}
 
 				for key, _ := range b.Scope.Macros {
-					if strings.HasPrefix(key, last.Data) {
+					if stringsPkg.HasPrefix(key, last.Data) {
 						c = append(c, prev+key)
 					}
 				}

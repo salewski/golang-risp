@@ -10,6 +10,9 @@ import (
 )
 
 var Symbols = runtime.Symtab{
+	"t":       runtime.NewSymbol(runtime.True),
+	"f":       runtime.NewSymbol(runtime.False),
+	"nil":     runtime.NewSymbol(runtime.Nil),
 	"print":   runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinPrint, "print"))),
 	"println": runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinPrintln, "println"))),
 	"list":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinList, "list"))),
