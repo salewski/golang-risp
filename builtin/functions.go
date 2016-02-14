@@ -33,6 +33,7 @@ var Symbols = runtime.Symtab{
 	"pass":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinPass, "pass"))),
 	"load":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinLoad, "load"))),
 	"cat":     runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinCat, "cat"))),
+	"assert":  runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinAssert, "assert"))),
 }
 
 func builtinPrint(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -230,4 +231,19 @@ func builtinCat(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	}
 
 	return runtime.NewStringValue(s), nil
+}
+
+func builtinAssert(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.AnyValue, runtime.AnyValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	assertion := context.Args[0].Equals(context.Args[1])
+	if !assertion {
+		return nil, runtime.NewRuntimeError(context.Pos, "assertion failed for "+context.Args[0].String()+", "+context.Args[1].String())
+	}
+
+	return runtime.BooleanValueFor(assertion), nil
 }
