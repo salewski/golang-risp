@@ -234,15 +234,17 @@ func builtinCat(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func builtinAssert(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.AnyValue, runtime.AnyValue)
+	err := runtime.ValidateArguments(context, runtime.BooleanValue, runtime.StringValue)
 
 	if err != nil {
 		return nil, err
 	}
 
-	assertion := context.Args[0].Equals(context.Args[1])
+	assertionFailedError := context.Args[1].Str
+
+	assertion := context.Args[0].Boolean
 	if !assertion {
-		return nil, runtime.NewRuntimeError(context.Pos, "assertion failed for "+context.Args[0].String()+", "+context.Args[1].String())
+		return nil, runtime.NewRuntimeError(context.Pos, "assertion failed: "+assertionFailedError)
 	}
 
 	return runtime.BooleanValueFor(assertion), nil
