@@ -1,11 +1,9 @@
-(println (strings:substr "fuck" 0 2))
-(println (strings:substr "fuck" 2 4))
+(assert (= (strings:substr "fuck" 0 2) "fa"))
+(assert (= (strings:substr "fuck" 2 4) "ck") "i cant really think of anything ot say")
 
-(println (strings:trim "!! fuck !!" "!"))
+(assert (= (strings:trim "!! fuck !!" "!") " fuck ") "not what i expected lol")
 
-(println (strings:join "fuck" " you!"))
+(assert (= (strings:rune-at "fuck" 2) "c") "second char is not c")
+(assert (= (strings:rune-at "Hello, 世界" 7) "世") "expected some other shit")
 
-(println (strings:rune-at "fuck" 2))
-(println (strings:rune-at "Hello, 世界" 7))
-
-(println (strings:length "fuck you bud"))
+(assert (= (strings:length "fuck you bud") 12) "you get the idea")
