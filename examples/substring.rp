@@ -1,2 +1,11 @@
-(println (std:substring "fuck" 0 2))
-(println (std:substring "fuck" 2 4))
+(println (strings:substr "fuck" 0 2))
+(println (strings:substr "fuck" 2 4))
+
+(println (strings:trim "!! fuck !!" "!"))
+
+(println (strings:join "fuck" " you!"))
+
+(println (strings:rune-at "fuck" 2))
+(println (strings:rune-at "Hello, 世界" 7))
+
+(println (strings:length "fuck you bud"))
