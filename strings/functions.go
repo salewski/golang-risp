@@ -8,7 +8,6 @@ import (
 var Symbols = runtime.Symtab{
 	"substr":  runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(stringsSubstr, "substr"))),
 	"trim":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(stringsTrim, "trim"))),
-	"join":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(stringsJoin, "join"))),
 	"rune-at": runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(stringsRuneAt, "rune-at"))),
 	"length":  runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(stringsLength, "length"))),
 }
@@ -43,16 +42,6 @@ func stringsTrim(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	source := context.Args[0].Str
 	cutset := context.Args[1].Str
 	return runtime.NewStringValue(strings.Trim(source, cutset)), nil
-}
-
-func stringsJoin(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	if err := runtime.ValidateArguments(context, runtime.StringValue, runtime.StringValue); err != nil {
-		return nil, err
-	}
-
-	first := context.Args[0].Str
-	second := context.Args[1].Str
-	return runtime.NewStringValue(first + second), nil
 }
 
 func stringsRuneAt(context *runtime.FunctionCallContext) (*runtime.Value, error) {
