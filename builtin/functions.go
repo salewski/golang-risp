@@ -234,17 +234,27 @@ func builtinCat(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func builtinAssert(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.BooleanValue, runtime.StringValue)
-
-	if err != nil {
-		return nil, err
+	optionalError := runtime.ValidateArguments(context, runtime.BooleanValue)
+	if optionalError != nil {
+		err := runtime.ValidateArguments(context, runtime.BooleanValue, runtime.StringValue)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	assertionFailedError := context.Args[1].Str
+	// todo improve errors to show the line in the source code
+	// we can get this from the context but there doesn't seem to
+	// be an easy way to get to the source of the file the function
+	// belongs to
+
+	var assertionFailedError string
+	if len(context.Args) == 2 {
+		assertionFailedError = ":" + context.Args[1].Str
+	}
 
 	assertion := context.Args[0].Boolean
 	if !assertion {
-		return nil, runtime.NewRuntimeError(context.Pos, "assertion failed: "+assertionFailedError)
+		return nil, runtime.NewRuntimeError(context.Pos, "assertion failed "+assertionFailedError)
 	}
 
 	return runtime.Nil, nil

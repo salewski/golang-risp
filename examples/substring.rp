@@ -1,4 +1,4 @@
-(assert (= (strings:substr "fuck" 0 2) "fa") "well this is awkward")
+(assert (= (strings:substr "fuck" 0 2) "fa"))
 (assert (= (strings:substr "fuck" 2 4) "ck") "i cant really think of anything ot say")
 
 (assert (= (strings:trim "!! fuck !!" "!") " fuck ") "not what i expected lol")
