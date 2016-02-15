@@ -216,7 +216,11 @@ func builtinLoad(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 
 	for key, value := range b.Scope.Symbols {
 		if value.Exported {
-			context.Block.Scope.SetSymbol(key, value)
+			if value.Value.Type == runtime.FunctionValue {
+				value.Value.Function.CustomScope = b.Scope
+			}
+
+			context.Block.Scope.SetSymbol(b.SymbolName(key), value)
 		}
 	}
 

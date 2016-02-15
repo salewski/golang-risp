@@ -23,6 +23,8 @@ type Function struct {
 	// for lambdas and declared functions
 	Nodes []parser.Node
 	Args  []string
+	// loaded files need their own scope when called, not the scope of the file requesting the load
+	CustomScope *Scope
 }
 
 func (f *Function) Call(block *Block, args []*Value, pos *lexer.TokenPos) (*Value, error) {
@@ -35,7 +37,13 @@ func (f *Function) Call(block *Block, args []*Value, pos *lexer.TokenPos) (*Valu
 			Pos:   pos,
 		})
 	case Declared, Lambda:
-		functionBlock := NewBlock(f.Nodes, NewScope(block.Scope))
+		scope := block.Scope
+
+		if f.CustomScope != nil {
+			scope = f.CustomScope
+		}
+
+		functionBlock := NewBlock(f.Nodes, NewScope(scope))
 
 		if len(args) != len(f.Args) {
 			return nil, NewRuntimeError(pos, "'%s' expected %d arguments, got %d", f.Name, len(f.Args), len(args))
