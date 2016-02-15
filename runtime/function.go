@@ -27,6 +27,21 @@ type Function struct {
 	CustomScope *Scope
 }
 
+func (f *Function) Copy() *Function {
+	other := &Function{Type: f.Type, Name: f.Name, CustomScope: f.CustomScope}
+
+	switch f.Type {
+	case Builtin:
+		other.Builtin = f.Builtin
+	case Declared, Lambda:
+		other.Nodes = f.Nodes
+		other.Args = f.Args
+		other.CustomScope = f.CustomScope
+	}
+
+	return other
+}
+
 func (f *Function) Call(block *Block, args []*Value, pos *lexer.TokenPos) (*Value, error) {
 	switch f.Type {
 	case Builtin:

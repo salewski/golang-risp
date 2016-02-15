@@ -105,6 +105,33 @@ func (v *Value) String() string {
 	}
 }
 
+func (v *Value) Copy() *Value {
+	if v.Type == NilValue {
+		return Nil
+	}
+
+	other := &Value{Type: v.Type}
+
+	switch v.Type {
+	case StringValue:
+		other.Str = v.Str
+	case NumberValue:
+		other.Number = v.Number
+	case BooleanValue:
+		other.Boolean = v.Boolean
+	case KeywordValue:
+		other.Keyword = v.Keyword
+	case ListValue:
+		for _, item := range v.List {
+			other.List = append(other.List, item.Copy())
+		}
+	case FunctionValue:
+		other.Function = v.Function.Copy()
+	}
+
+	return other
+}
+
 func (v *Value) Equals(other *Value) bool {
 	if v.Type != other.Type {
 		return false

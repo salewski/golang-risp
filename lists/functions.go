@@ -4,6 +4,7 @@ import "github.com/raoulvdberge/risp/runtime"
 
 var Symbols = runtime.Symtab{
 	"range": runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listsRange, "range"))),
+	"push":  runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listsPush, "push"))),
 }
 
 func listsRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -27,4 +28,16 @@ func listsRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	}
 
 	return l, nil
+}
+
+func listsPush(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	err := runtime.ValidateArguments(context, runtime.ListValue, runtime.AnyValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	context.Args[0].List = append(context.Args[0].List, context.Args[1])
+
+	return context.Args[0], nil
 }
