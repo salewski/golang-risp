@@ -248,13 +248,13 @@ func builtinAssert(context *runtime.FunctionCallContext) (*runtime.Value, error)
 		}
 	}
 
-	message := "assertion failed"
-
-	if len(context.Args) == 2 {
-		message += ": " + context.Args[1].Str
-	}
-
 	if !context.Args[0].Boolean {
+		message := "assertion failed"
+
+		if len(context.Args) == 2 {
+			message += ": " + context.Args[1].Str
+		}
+
 		return nil, runtime.NewRuntimeError(context.Pos, message)
 	}
 
