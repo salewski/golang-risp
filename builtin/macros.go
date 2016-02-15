@@ -44,10 +44,11 @@ func builtinDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	}
 
 	function := runtime.NewDeclaredFunction([]parser.Node{callback}, name, args)
+	functionValue := runtime.NewFunctionValue(function)
 
-	context.Block.Scope.SetSymbol(name, runtime.NewSymbol(runtime.NewFunctionValue(function)))
+	context.Block.Scope.SetSymbol(name, runtime.NewSymbol(functionValue))
 
-	return runtime.Nil, nil
+	return functionValue, nil
 }
 
 func builtinDef(context *runtime.MacroCallContext) (*runtime.Value, error) {
@@ -64,7 +65,7 @@ func builtinDef(context *runtime.MacroCallContext) (*runtime.Value, error) {
 
 	context.Block.Scope.SetSymbol(name, runtime.NewSymbol(value))
 
-	return runtime.Nil, nil
+	return value, nil
 }
 
 func builtinFun(context *runtime.MacroCallContext) (*runtime.Value, error) {
