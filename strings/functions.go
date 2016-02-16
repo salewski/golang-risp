@@ -6,13 +6,13 @@ import (
 )
 
 var Symbols = runtime.Symtab{
-	"substr":  runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(stringsSubstr, "substr"))),
+	"range":   runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(stringsRange, "range"))),
 	"trim":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(stringsTrim, "trim"))),
 	"rune-at": runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(stringsRuneAt, "rune-at"))),
 	"length":  runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(stringsLength, "length"))),
 }
 
-func stringsSubstr(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+func stringsRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	err := runtime.ValidateArguments(context, runtime.StringValue, runtime.NumberValue, runtime.NumberValue)
 
 	if err != nil {

@@ -1,5 +1,5 @@
-(assert (= (string:substr "fuck" 0 2) "fu"))
-(assert (= (string:substr "fuck" 2 4) "ck"))
+(assert (= (string:range "fuck" 0 2) "fu"))
+(assert (= (string:range "fuck" 2 4) "ck"))
 
 (assert (= (string:trim "!! fuck !!" "!") " fuck "))
 
