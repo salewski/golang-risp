@@ -168,12 +168,12 @@ func listRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	if err != nil {
 		optionalErr := runtime.ValidateArguments(context, runtime.ListValue, runtime.NumberValue)
 
-		if optionalErr != nil {
+		if optionalErr == nil {
+			begin = context.Args[1].NumberToInt64()
+			end = int64(len(context.Args[0].List)) - 1
+		} else {
 			return nil, optionalErr
 		}
-
-		begin = context.Args[1].NumberToInt64()
-		end = int64(len(context.Args[0].List))
 	} else {
 		begin = context.Args[1].NumberToInt64()
 		end = context.Args[2].NumberToInt64()
