@@ -18,9 +18,7 @@ var Symbols = runtime.Symtab{
 }
 
 func listSeq(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue); err != nil {
 		return nil, err
 	}
 
@@ -41,9 +39,7 @@ func listSeq(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func listPush(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.ListValue, runtime.AnyValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.ListValue, runtime.AnyValue); err != nil {
 		return nil, err
 	}
 
@@ -53,9 +49,7 @@ func listPush(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func listPushLeft(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.ListValue, runtime.AnyValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.ListValue, runtime.AnyValue); err != nil {
 		return nil, err
 	}
 
@@ -65,9 +59,7 @@ func listPushLeft(context *runtime.FunctionCallContext) (*runtime.Value, error) 
 }
 
 func listSize(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.ListValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.ListValue); err != nil {
 		return nil, err
 	}
 
@@ -75,9 +67,7 @@ func listSize(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func listGet(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.ListValue, runtime.NumberValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.ListValue, runtime.NumberValue); err != nil {
 		return nil, err
 	}
 
@@ -92,9 +82,7 @@ func listGet(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func listSet(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.ListValue, runtime.NumberValue, runtime.AnyValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.ListValue, runtime.NumberValue, runtime.AnyValue); err != nil {
 		return nil, err
 	}
 
@@ -111,9 +99,7 @@ func listSet(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func listDrop(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.ListValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.ListValue); err != nil {
 		return nil, err
 	}
 
@@ -129,9 +115,7 @@ func listDrop(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func listDropLeft(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.ListValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.ListValue); err != nil {
 		return nil, err
 	}
 
@@ -147,9 +131,7 @@ func listDropLeft(context *runtime.FunctionCallContext) (*runtime.Value, error) 
 }
 
 func listJoin(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.ListValue, runtime.ListValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.ListValue, runtime.ListValue); err != nil {
 		return nil, err
 	}
 
@@ -199,9 +181,7 @@ func listRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func listReverse(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.ListValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.ListValue); err != nil {
 		return nil, err
 	}
 
@@ -216,9 +196,7 @@ func listReverse(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func listRemove(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.ListValue, runtime.NumberValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.ListValue, runtime.NumberValue); err != nil {
 		return nil, err
 	}
 

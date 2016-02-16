@@ -24,9 +24,7 @@ var Symbols = runtime.Symtab{
 }
 
 func mathMod(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue); err != nil {
 		return nil, err
 	}
 
@@ -34,9 +32,7 @@ func mathMod(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func mathSimpleMath(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.NumberValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.NumberValue); err != nil {
 		return nil, err
 	}
 
@@ -67,9 +63,7 @@ func mathSimpleMath(context *runtime.FunctionCallContext) (*runtime.Value, error
 }
 
 func mathPow(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue); err != nil {
 		return nil, err
 	}
 
@@ -77,9 +71,7 @@ func mathPow(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func mathDeg2Rad(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.NumberValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.NumberValue); err != nil {
 		return nil, err
 	}
 
@@ -87,9 +79,7 @@ func mathDeg2Rad(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func mathRad2Deg(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.NumberValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.NumberValue); err != nil {
 		return nil, err
 	}
 

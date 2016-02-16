@@ -72,9 +72,7 @@ func builtinString(context *runtime.FunctionCallContext) (*runtime.Value, error)
 }
 
 func builtinMath(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue); err != nil {
 		return nil, err
 	}
 
@@ -101,9 +99,7 @@ func builtinMath(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func builtinMathCmp(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue); err != nil {
 		return nil, err
 	}
 
@@ -127,9 +123,7 @@ func builtinMathCmp(context *runtime.FunctionCallContext) (*runtime.Value, error
 }
 
 func builtinEquals(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.AnyValue, runtime.AnyValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.AnyValue, runtime.AnyValue); err != nil {
 		return nil, err
 	}
 
@@ -137,9 +131,7 @@ func builtinEquals(context *runtime.FunctionCallContext) (*runtime.Value, error)
 }
 
 func builtinNotEquals(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.AnyValue, runtime.AnyValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.AnyValue, runtime.AnyValue); err != nil {
 		return nil, err
 	}
 
@@ -147,9 +139,7 @@ func builtinNotEquals(context *runtime.FunctionCallContext) (*runtime.Value, err
 }
 
 func builtinAnd(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.BooleanValue, runtime.BooleanValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.BooleanValue, runtime.BooleanValue); err != nil {
 		return nil, err
 	}
 
@@ -157,9 +147,7 @@ func builtinAnd(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func builtinOr(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.BooleanValue, runtime.BooleanValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.BooleanValue, runtime.BooleanValue); err != nil {
 		return nil, err
 	}
 
@@ -167,9 +155,7 @@ func builtinOr(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func builtinNot(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.BooleanValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.BooleanValue); err != nil {
 		return nil, err
 	}
 
@@ -187,9 +173,7 @@ func builtinCall(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func builtinPass(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.AnyValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.AnyValue); err != nil {
 		return runtime.Nil, nil
 	}
 
@@ -197,9 +181,7 @@ func builtinPass(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func builtinLoad(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.StringValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.StringValue); err != nil {
 		return nil, err
 	}
 

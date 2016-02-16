@@ -25,9 +25,7 @@ var Symbols = runtime.Symtab{
 }
 
 func stringsRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	err := runtime.ValidateArguments(context, runtime.StringValue, runtime.NumberValue, runtime.NumberValue)
-
-	if err != nil {
+	if err := runtime.ValidateArguments(context, runtime.StringValue, runtime.NumberValue, runtime.NumberValue); err != nil {
 		return nil, err
 	}
 
