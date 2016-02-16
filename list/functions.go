@@ -84,7 +84,7 @@ func listGet(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	size := int64(len(context.Args[0].List))
 	index := context.Args[1].NumberToInt64()
 
-	if index < 0 || index > size {
+	if index < 0 || index > size-1 {
 		return nil, runtime.NewRuntimeError(context.Pos, "index %d out of bounds (list size is %d)", index, size)
 	}
 
@@ -101,13 +101,13 @@ func listSet(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	size := int64(len(context.Args[0].List))
 	index := context.Args[1].NumberToInt64()
 
-	if index < 0 || index > size {
+	if index < 0 || index > size-1 {
 		return nil, runtime.NewRuntimeError(context.Pos, "index %d out of bounds (list size is %d)", index, size)
 	}
 
 	context.Args[0].List[index] = context.Args[2]
 
-	return runtime.Nil, nil
+	return context.Args[0], nil
 }
 
 func listDrop(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -117,13 +117,15 @@ func listDrop(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 		return nil, err
 	}
 
-	l := context.Args[0].List
+	l := context.Args[0]
 
-	dropped := l[len(l)-1]
+	if len(l.List) == 0 {
+		return nil, runtime.NewRuntimeError(context.Pos, "empty list")
+	}
 
-	l = l[0 : len(l)-2]
+	l.List = l.List[0 : len(l.List)-1]
 
-	return dropped, nil
+	return context.Args[0], nil
 }
 
 func listDropLeft(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -133,13 +135,15 @@ func listDropLeft(context *runtime.FunctionCallContext) (*runtime.Value, error) 
 		return nil, err
 	}
 
-	l := context.Args[0].List
+	l := context.Args[0]
 
-	dropped := l[0]
+	if len(l.List) == 0 {
+		return nil, runtime.NewRuntimeError(context.Pos, "empty list")
+	}
 
-	l = l[1:]
+	l.List = l.List[1:]
 
-	return dropped, nil
+	return context.Args[0], nil
 }
 
 func listJoin(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -153,38 +157,37 @@ func listJoin(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 		context.Args[0].List = append(context.Args[0].List, item)
 	}
 
-	return runtime.Nil, nil
+	return context.Args[0], nil
 }
 
 func listRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	var begin, end int64
 
-	err := runtime.ValidateArguments(context, runtime.ListValue, runtime.NumberValue)
+	err := runtime.ValidateArguments(context, runtime.ListValue, runtime.NumberValue, runtime.NumberValue)
 
 	if err != nil {
-		return nil, err
-	} else {
+		optionalErr := runtime.ValidateArguments(context, runtime.ListValue, runtime.NumberValue)
+
+		if optionalErr != nil {
+			return nil, optionalErr
+		}
+
 		begin = context.Args[1].NumberToInt64()
 		end = int64(len(context.Args[0].List))
-
-		err = runtime.ValidateArguments(context, runtime.ListValue, runtime.NumberValue, runtime.NumberValue)
-
-		if err != nil {
-			return nil, err
-		} else {
-			end = context.Args[2].NumberToInt64()
-		}
+	} else {
+		begin = context.Args[1].NumberToInt64()
+		end = context.Args[2].NumberToInt64()
 	}
 
 	length := int64(len(context.Args[0].List))
 
-	if begin < 0 || begin > length || begin > end || end < 0 || end < begin {
+	if begin < 0 || begin > length-1 || begin > end || end < 0 || end > length-1 {
 		return nil, runtime.NewRuntimeError(context.Pos, "invalid bounds %d and %d (list length is %d)", begin, end, length)
 	}
 
 	newList := runtime.NewListValue()
 
-	for _, item := range context.Args[0].List[begin:end] {
+	for _, item := range context.Args[0].List[begin : end+1] {
 		newList.List = append(newList.List, item)
 	}
 
@@ -223,13 +226,17 @@ func listRemove(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	size := int64(len(list))
 	index := context.Args[1].NumberToInt64()
 
-	if index < 0 || index > size {
+	if index < 0 || index > size-1 {
 		return nil, runtime.NewRuntimeError(context.Pos, "index %d out of bounds (list size is %d)", index, size)
 	}
 
-	toRemove := list[index]
+	newList := runtime.NewListValue()
 
-	list = append(list[:index], list[index+1:]...)
+	for i, item := range list {
+		if int64(i) != index {
+			newList.List = append(newList.List, item)
+		}
+	}
 
-	return toRemove, nil
+	return newList, nil
 }
