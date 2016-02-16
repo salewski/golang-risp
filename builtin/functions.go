@@ -16,6 +16,7 @@ var Symbols = runtime.Symtab{
 	"print":   runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinPrint, "print"))),
 	"println": runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinPrintln, "println"))),
 	"list":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinList, "list"))),
+	"string":  runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinString, "string"))),
 	"+":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMath, "+"))),
 	"-":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMath, "-"))),
 	"*":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMath, "*"))),
@@ -60,6 +61,14 @@ func builtinList(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	}
 
 	return l, nil
+}
+
+func builtinString(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	if err := runtime.ValidateArguments(context, runtime.AnyValue); err != nil {
+		return nil, err
+	}
+
+	return runtime.NewStringValue(context.Args[0].String()), nil
 }
 
 func builtinMath(context *runtime.FunctionCallContext) (*runtime.Value, error) {
