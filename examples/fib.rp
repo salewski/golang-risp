@@ -6,7 +6,7 @@
 	_   (+ (fib (- n 1)) (fib (- n 2)))
 ))
 
-(for (list:seq 0 21) (i) (
+(for (list:seq 0 20) (i) (
 	(print (cat "Fibbonaci Sequence #" i ": "))
 	(println (fib i))
 ))

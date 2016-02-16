@@ -33,7 +33,7 @@ func listSeq(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 
 	l := runtime.NewListValue()
 
-	for i := low; i < high; i++ {
+	for i := low; i <= high; i++ {
 		l.List = append(l.List, runtime.NewNumberValueFromInt64(i))
 	}
 
