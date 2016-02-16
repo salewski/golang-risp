@@ -1,13 +1,13 @@
-package lists
+package list
 
 import "github.com/raoulvdberge/risp/runtime"
 
 var Symbols = runtime.Symtab{
-	"range": runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listsRange, "range"))),
-	"push":  runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listsPush, "push"))),
+	"range": runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listRange, "range"))),
+	"push":  runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listPush, "push"))),
 }
 
-func listsRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+func listRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	err := runtime.ValidateArguments(context, runtime.NumberValue, runtime.NumberValue)
 
 	if err != nil {
@@ -30,7 +30,7 @@ func listsRange(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	return l, nil
 }
 
-func listsPush(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+func listPush(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	err := runtime.ValidateArguments(context, runtime.ListValue, runtime.AnyValue)
 
 	if err != nil {

@@ -7,7 +7,7 @@ import (
 	"github.com/peterh/liner"
 	"github.com/raoulvdberge/risp/builtin"
 	"github.com/raoulvdberge/risp/lexer"
-	"github.com/raoulvdberge/risp/lists"
+	"github.com/raoulvdberge/risp/list"
 	"github.com/raoulvdberge/risp/math"
 	"github.com/raoulvdberge/risp/parser"
 	"github.com/raoulvdberge/risp/runtime"
@@ -59,8 +59,8 @@ func apply(scope *runtime.Scope) {
 	scope.ApplySymbols("", builtin.Symbols)
 	scope.ApplyMacros("", builtin.Macros)
 
-	scope.ApplySymbols("lists", lists.Symbols)
-	scope.ApplySymbols("strings", strings.Symbols)
+	scope.ApplySymbols("list", list.Symbols)
+	scope.ApplySymbols("string", strings.Symbols) // string is a type in Go so we have to keep using "strings" internally
 	scope.ApplySymbols("math", math.Symbols)
 }
 
