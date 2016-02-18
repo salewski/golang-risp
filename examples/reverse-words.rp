@@ -1,0 +1,7 @@
+(defun reverse-words (input)
+	(for (list:reverse (string:split input " ")) (x) (print (cat x " ")))
+)
+
+(reverse-words "hello world there!")
+
+(export reverse-words)
