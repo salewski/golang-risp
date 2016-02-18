@@ -160,6 +160,12 @@ func (l *Lexer) lexSeparator() {
 	l.addToken(Separator)
 }
 
+func (l *Lexer) lexComment() {
+	for l.hasNext() && l.current() != '\n' {
+		l.ignore(1)
+	}
+}
+
 func (l *Lexer) Lex() error {
 	for !l.isEOF() {
 		switch {
@@ -190,6 +196,8 @@ func (l *Lexer) Lex() error {
 			}
 		case l.current() == '(', l.current() == ')':
 			l.lexSeparator()
+		case l.current() == ';':
+			l.lexComment()
 		case l.current() < ' ', unicode.IsControl(l.current()), unicode.IsSpace(l.current()):
 			if l.Formatting {
 				l.consume()

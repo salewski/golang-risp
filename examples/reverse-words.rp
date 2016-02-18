@@ -2,6 +2,6 @@
 	(for (list:reverse (string:split input " ")) (x) (print (cat x " ")))
 )
 
-(reverse-words "hello world there!")
+(reverse-words "hello world there!") ; output: there! world hello
 
 (export reverse-words)
