@@ -1,4 +1,4 @@
-PACKAGES = {builtin,lexer,lists,math,parser,runtime,strings,util}
+PACKAGES = {builtin,lexer,list,math,parser,repl,runtime,strings,util}
 
 all:
 	@go install github.com/raoulvdberge/risp
