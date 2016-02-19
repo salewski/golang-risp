@@ -116,7 +116,14 @@ func runRepl() {
 			prev := ""
 
 			for i := 0; i < len(l.Tokens)-1; i++ {
-				prev += l.Tokens[i].Data
+				// ugly hacks
+				if l.Tokens[i].Type == lexer.String {
+					prev += "\"" + l.Tokens[i].Data + "\""
+				} else if l.Tokens[i].Type == lexer.Keyword {
+					prev += ":" + l.Tokens[i].Data
+				} else {
+					prev += l.Tokens[i].Data
+				}
 			}
 
 			last := l.Tokens[len(l.Tokens)-1]

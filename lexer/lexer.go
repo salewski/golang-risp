@@ -14,8 +14,7 @@ type Lexer struct {
 	data     string
 	source   Source
 	Tokens   []*Token
-	// when this flag is true, the lexer will lex formatting characters as well
-	// this is used in the repl
+	// ugly hack to make repl autocompletion work
 	Formatting bool
 }
 
