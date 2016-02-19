@@ -29,7 +29,7 @@ func (s *ReplSession) completer(line string) (c []string) {
 	ident = util.ReverseString(ident)
 
 	if ident != "" && lexer.IsIdentifierStart(rune(ident[0])) && identEnd != -1 {
-		for key, _ := range s.Block.Scope.Symbols {
+		for key, _ := range s.block.Scope.Symbols {
 			if strings.HasPrefix(key, ident) {
 				c = append(c, line[0:identEnd+1]+key)
 			}

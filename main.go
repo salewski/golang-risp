@@ -55,20 +55,6 @@ func main() {
 	}
 }
 
-func apply(block *runtime.Block) *runtime.Block {
-	block.Scope.ApplySymbols("", builtin.Symbols)
-	block.Scope.ApplyMacros("", builtin.Macros)
-
-	block.Scope.ApplySymbols("list", list.Symbols)
-	block.Scope.ApplyMacros("list", list.Macros)
-
-	block.Scope.ApplySymbols("string", strings.Symbols) // string is a type in Go so we have to keep using "strings" internally
-
-	block.Scope.ApplySymbols("math", math.Symbols)
-
-	return block
-}
-
 func run(source lexer.Source) {
 	l := lexer.NewLexer(source)
 	util.Timed("lexing", *debug, func() {
@@ -95,6 +81,20 @@ func run(source lexer.Source) {
 			}
 		})
 	}
+}
+
+func apply(block *runtime.Block) *runtime.Block {
+	block.Scope.ApplySymbols("", builtin.Symbols)
+	block.Scope.ApplyMacros("", builtin.Macros)
+
+	block.Scope.ApplySymbols("list", list.Symbols)
+	block.Scope.ApplyMacros("list", list.Macros)
+
+	block.Scope.ApplySymbols("string", strings.Symbols) // string is a type in Go so we have to keep using "strings" internally
+
+	block.Scope.ApplySymbols("math", math.Symbols)
+
+	return block
 }
 
 func usage() {

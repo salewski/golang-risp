@@ -7,18 +7,24 @@ import (
 	"github.com/raoulvdberge/risp/parser"
 	"github.com/raoulvdberge/risp/runtime"
 	"github.com/raoulvdberge/risp/util"
+	"os"
+	"path/filepath"
 	"strconv"
 )
 
+var (
+	history = filepath.Join(os.TempDir(), ".risp_repl")
+)
+
 type ReplSession struct {
-	Block  *runtime.Block
+	block  *runtime.Block
 	tokens []*lexer.Token
 	depth  int
 }
 
 func NewReplSession(block *runtime.Block) *ReplSession {
 	return &ReplSession{
-		Block: block,
+		block: block,
 		depth: 0,
 	}
 }
@@ -30,6 +36,11 @@ func (s *ReplSession) Run() {
 	line.SetCtrlCAborts(true)
 	line.SetCompleter(s.completer)
 
+	if f, err := os.Open(history); err == nil {
+		line.ReadHistory(f)
+		f.Close()
+	}
+
 	for {
 		prompt := "> "
 
@@ -38,6 +49,11 @@ func (s *ReplSession) Run() {
 		}
 
 		data, err := line.Prompt(prompt)
+
+		if f, err := os.Create(history); err == nil {
+			line.WriteHistory(f)
+			f.Close()
+		}
 
 		if err != nil {
 			if err == liner.ErrPromptAborted {
@@ -71,24 +87,28 @@ func (s *ReplSession) Run() {
 
 				if err != nil {
 					util.ReportError(err, true)
-				} else {
-					for _, node := range p.Nodes {
-						result, err := s.Block.EvalNode(node)
 
-						if err != nil {
-							util.ReportError(err, true)
-						} else {
-							data := util.Yellow("===> " + result.String())
+					continue
+				}
 
-							if result.Type != runtime.NilValue {
-								data += " " + util.Yellow("("+result.Type.String()+")")
-							}
+				for _, node := range p.Nodes {
+					result, err := s.block.EvalNode(node)
 
-							fmt.Println(data)
+					if err != nil {
+						util.ReportError(err, true)
 
-							s.Block.Scope.SetSymbolLocally("_", runtime.NewSymbol(result))
-						}
+						continue
 					}
+
+					data := util.Yellow("===> " + result.String())
+
+					if result.Type != runtime.NilValue {
+						data += " " + util.Yellow("("+result.Type.String()+")")
+					}
+
+					fmt.Println(data)
+
+					s.block.Scope.SetSymbolLocally("_", runtime.NewSymbol(result))
 				}
 			}
 		}
