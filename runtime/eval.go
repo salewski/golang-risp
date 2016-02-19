@@ -81,7 +81,7 @@ func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
 					return nil, err
 				}
 
-				b.Scope.SetSymbol("_", NewSymbol(listResult))
+				b.Scope.SetSymbolLocally("_", NewSymbol(listResult))
 
 				result = listResult
 			}

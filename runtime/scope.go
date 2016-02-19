@@ -44,6 +44,14 @@ func (s *Scope) GetSymbol(key string) *Symbol {
 }
 
 func (s *Scope) SetSymbol(key string, value *Symbol) {
+	if s.parent != nil && s.parent.GetSymbol(key) != nil {
+		s.parent.SetSymbol(key, value)
+	} else {
+		s.SetSymbolLocally(key, value)
+	}
+}
+
+func (s *Scope) SetSymbolLocally(key string, value *Symbol) {
 	s.Symbols[key] = value
 }
 

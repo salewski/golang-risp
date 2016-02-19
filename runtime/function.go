@@ -65,7 +65,7 @@ func (f *Function) Call(block *Block, args []*Value, pos *lexer.TokenPos) (*Valu
 		}
 
 		for i, argName := range f.Args {
-			functionBlock.Scope.SetSymbol(argName, NewSymbol(args[i]))
+			functionBlock.Scope.SetSymbolLocally(argName, NewSymbol(args[i]))
 		}
 
 		return functionBlock.Eval()

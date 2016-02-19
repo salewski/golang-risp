@@ -15,6 +15,7 @@ import (
 	"github.com/raoulvdberge/risp/util"
 	"io/ioutil"
 	"os"
+	"strconv"
 	stringsPkg "strings"
 )
 
@@ -141,7 +142,13 @@ func runRepl() {
 	depth := 0
 
 	for {
-		data, err := line.Prompt("> ")
+		prompt := "> "
+
+		if depth > 0 {
+			prompt = "(" + strconv.Itoa(depth) + ") " + prompt
+		}
+
+		data, err := line.Prompt(prompt)
 
 		if err != nil {
 			if err == liner.ErrPromptAborted {
@@ -191,12 +198,10 @@ func runRepl() {
 
 							fmt.Println(data)
 
-							b.Scope.SetSymbol("_", runtime.NewSymbol(result))
+							b.Scope.SetSymbolLocally("_", runtime.NewSymbol(result))
 						}
 					}
 				}
-			} else {
-				fmt.Printf("%s===> %d missing closing parenthesis%s\n", util.TEXT_GREEN, depth, util.TEXT_RESET)
 			}
 		}
 	}

@@ -1,0 +1,9 @@
+(defun repeat (str n) (
+	(def result "")
+	(for (list:seq 1 n) () (def result (cat result str)))
+	(pass result)
+))
+
+(println (repeat "ha" 5))
+
+(export repeat)
