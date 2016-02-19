@@ -1,0 +1,5 @@
+(defun even-numbers (max)
+	(list:filter
+		(list:seq 1 max) n (= 0 (math:mod n 2))))
+
+(println (even-numbers 10))

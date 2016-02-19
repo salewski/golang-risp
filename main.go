@@ -61,7 +61,10 @@ func apply(scope *runtime.Scope) {
 	scope.ApplyMacros("", builtin.Macros)
 
 	scope.ApplySymbols("list", list.Symbols)
+	scope.ApplyMacros("list", list.Macros)
+
 	scope.ApplySymbols("string", strings.Symbols) // string is a type in Go so we have to keep using "strings" internally
+
 	scope.ApplySymbols("math", math.Symbols)
 }
 
