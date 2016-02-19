@@ -14,19 +14,16 @@ type Lexer struct {
 	data     string
 	source   Source
 	Tokens   []*Token
-	// ugly hack to make repl autocompletion work
-	Formatting bool
 }
 
 func NewLexer(source Source) *Lexer {
 	return &Lexer{
-		pos:        0,
-		startPos:   0,
-		line:       1,
-		col:        1,
-		data:       source.Data(),
-		source:     source,
-		Formatting: false,
+		pos:      0,
+		startPos: 0,
+		line:     1,
+		col:      1,
+		data:     source.Data(),
+		source:   source,
 	}
 }
 
@@ -147,7 +144,7 @@ func (l *Lexer) lexIdentifierOrKeyword(keyword bool) {
 
 	l.consume()
 
-	for l.hasNext() && isIdentifierPart(l.current()) {
+	for l.hasNext() && IsIdentifierPart(l.current()) {
 		l.consume()
 	}
 
@@ -181,11 +178,11 @@ func (l *Lexer) Lex() error {
 		case l.current() == '_', l.current() == '+', l.current() == '-', l.current() == '*', l.current() == '/', l.current() == '=', l.current() == '>', l.current() == '<':
 			l.consume()
 			l.addToken(Identifier)
-		case (l.current() == ':' || l.current() == '\'') && l.hasNext() && isIdentifierStart(l.peek(1)):
+		case (l.current() == ':' || l.current() == '\'') && l.hasNext() && IsIdentifierStart(l.peek(1)):
 			keyword := l.current() == ':'
 
 			l.lexIdentifierOrKeyword(keyword)
-		case isIdentifierStart(l.current()):
+		case IsIdentifierStart(l.current()):
 			l.lexIdentifierOrKeyword(false)
 		case l.current() == '"':
 			err := l.lexString()
@@ -198,12 +195,7 @@ func (l *Lexer) Lex() error {
 		case l.current() == ';':
 			l.lexComment()
 		case l.current() < ' ', unicode.IsControl(l.current()), unicode.IsSpace(l.current()):
-			if l.Formatting {
-				l.consume()
-				l.addToken(Identifier)
-			} else {
-				l.ignore(1)
-			}
+			l.ignore(1)
 		default:
 			return NewSyntaxError(l.newPos(), "unknown character '%c'", l.current())
 		}
@@ -216,10 +208,10 @@ func isNumber(r rune) bool {
 	return r >= '0' && r <= '9'
 }
 
-func isIdentifierStart(r rune) bool {
+func IsIdentifierStart(r rune) bool {
 	return unicode.IsLetter(r)
 }
 
-func isIdentifierPart(r rune) bool {
-	return isIdentifierStart(r) || unicode.IsNumber(r) || r == '-' || r == ':'
+func IsIdentifierPart(r rune) bool {
+	return IsIdentifierStart(r) || unicode.IsNumber(r) || r == '-' || r == ':'
 }

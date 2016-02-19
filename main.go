@@ -111,37 +111,31 @@ func runRepl() {
 	apply(b.Scope)
 
 	line.SetCompleter(func(line string) (c []string) {
-		l := lexer.NewLexer(lexer.NewSourceFromString("", line))
-		l.Formatting = true
-		l.Lex()
+		ident := ""
+		identEnd := -1
 
-		if len(l.Tokens) > 0 {
-			prev := ""
+		for i := len(line) - 1; i >= 0; i-- {
+			identEnd = i
 
-			for i := 0; i < len(l.Tokens)-1; i++ {
-				// ugly hacks
-				if l.Tokens[i].Type == lexer.String {
-					prev += "\"" + l.Tokens[i].Data + "\""
-				} else if l.Tokens[i].Type == lexer.Keyword {
-					prev += ":" + l.Tokens[i].Data
-				} else {
-					prev += l.Tokens[i].Data
-				}
+			part := rune(line[i])
+
+			if lexer.IsIdentifierPart(part) {
+				ident += string(part)
+			} else if lexer.IsIdentifierStart(part) {
+				ident += string(part)
+
+				break
+			} else {
+				break
 			}
+		}
 
-			last := l.Tokens[len(l.Tokens)-1]
+		ident = util.ReverseString(ident)
 
-			if last.Type == lexer.Identifier {
-				for key, _ := range b.Scope.Symbols {
-					if stringsPkg.HasPrefix(key, last.Data) {
-						c = append(c, prev+key)
-					}
-				}
-
-				for key, _ := range b.Scope.Macros {
-					if stringsPkg.HasPrefix(key, last.Data) {
-						c = append(c, prev+key)
-					}
+		if ident != "" && lexer.IsIdentifierStart(rune(ident[0])) && identEnd != -1 {
+			for key, _ := range b.Scope.Symbols {
+				if stringsPkg.HasPrefix(key, ident) {
+					c = append(c, line[0:identEnd+1]+key)
 				}
 			}
 		}
@@ -155,7 +149,7 @@ func runRepl() {
 		prompt := "> "
 
 		if depth > 0 {
-			prompt = "(" + strconv.Itoa(depth) + ") " + prompt
+			prompt += "(" + strconv.Itoa(depth) + ") "
 		}
 
 		data, err := line.Prompt(prompt)

@@ -2,6 +2,7 @@ package strings
 
 import (
 	"github.com/raoulvdberge/risp/runtime"
+	"github.com/raoulvdberge/risp/util"
 	"strings"
 	"unicode"
 )
@@ -137,17 +138,7 @@ func stringsReverse(context *runtime.FunctionCallContext) (*runtime.Value, error
 		return nil, err
 	}
 
-	s := context.Args[0].Str
-
-	n := len(s)
-	runes := make([]rune, n)
-
-	for _, rune := range s {
-		n--
-		runes[n] = rune
-	}
-
-	return runtime.NewStringValue(string(runes[n:])), nil
+	return runtime.NewStringValue(util.ReverseString(context.Args[0].Str)), nil
 }
 
 func stringsContains(context *runtime.FunctionCallContext) (*runtime.Value, error) {
