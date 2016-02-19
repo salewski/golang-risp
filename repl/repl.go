@@ -50,11 +50,6 @@ func (s *ReplSession) Run() {
 
 		data, err := line.Prompt(prompt)
 
-		if f, err := os.Create(history); err == nil {
-			line.WriteHistory(f)
-			f.Close()
-		}
-
 		if err != nil {
 			if err == liner.ErrPromptAborted {
 				return
@@ -64,6 +59,11 @@ func (s *ReplSession) Run() {
 		}
 
 		line.AppendHistory(data)
+
+		if f, err := os.Create(history); err == nil {
+			line.WriteHistory(f)
+			f.Close()
+		}
 
 		l := lexer.NewLexer(lexer.NewSourceFromString("<repl>", data))
 
