@@ -3,18 +3,23 @@ package list
 import "github.com/raoulvdberge/risp/runtime"
 
 var Symbols = runtime.Symtab{
-	"seq":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listSeq, "seq"))),
-	"push":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listPush, "push"))),
-	"push-left": runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listPushLeft, "push-left"))),
-	"size":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listSize, "size"))),
-	"get":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listGet, "get"))),
-	"set":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listSet, "set"))),
-	"drop":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listDrop, "drop"))),
-	"drop-left": runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listDropLeft, "drop-left"))),
-	"join":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listJoin, "join"))),
-	"range":     runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listRange, "range"))),
-	"reverse":   runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listReverse, "reverse"))),
-	"remove":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listRemove, "remove"))),
+	"seq":          runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listSeq, "seq"))),
+	"contains":     runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listContains, "contains"))),
+	"contains-key": runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listContainsKey, "contains-key"))),
+	"push":         runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listPush, "push"))),
+	"push-left":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listPushLeft, "push-left"))),
+	"size":         runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listSize, "size"))),
+	"get":          runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listGet, "get"))),
+	"get-key":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listGetKey, "get-key"))),
+	"set":          runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listSet, "set"))),
+	"set-key":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listSetKey, "set-key"))),
+	"drop":         runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listDrop, "drop"))),
+	"drop-left":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listDropLeft, "drop-left"))),
+	"join":         runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listJoin, "join"))),
+	"range":        runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listRange, "range"))),
+	"reverse":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listReverse, "reverse"))),
+	"remove":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listRemove, "remove"))),
+	"remove-key":   runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(listRemoveKey, "remove-key"))),
 }
 
 func listSeq(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -36,6 +41,36 @@ func listSeq(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	}
 
 	return l, nil
+}
+
+func listContains(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	if err := runtime.ValidateArguments(context, runtime.ListValue, runtime.AnyValue); err != nil {
+		return nil, err
+	}
+
+	for _, item := range context.Args[0].List {
+		if item.Equals(context.Args[1]) {
+			return runtime.True, nil
+		}
+	}
+
+	return runtime.False, nil
+}
+
+func listContainsKey(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	if err := runtime.ValidateArguments(context, runtime.ListValue, runtime.KeywordValue); err != nil {
+		return nil, err
+	}
+
+	l := context.Args[0].List
+
+	for i := 0; i < len(l); i++ {
+		if l[i].Type == runtime.KeywordValue && l[i].Keyword == context.Args[1].Keyword && i+1 < len(l) {
+			return runtime.True, nil
+		}
+	}
+
+	return runtime.False, nil
 }
 
 func listPush(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -81,6 +116,22 @@ func listGet(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	return context.Args[0].List[index], nil
 }
 
+func listGetKey(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	if err := runtime.ValidateArguments(context, runtime.ListValue, runtime.KeywordValue); err != nil {
+		return nil, err
+	}
+
+	l := context.Args[0]
+
+	for i := 0; i < len(l.List); i++ {
+		if l.List[i].Type == runtime.KeywordValue && l.List[i].Keyword == context.Args[1].Keyword && i+1 < len(l.List) {
+			return l.List[i+1], nil
+		}
+	}
+
+	return runtime.Nil, nil
+}
+
 func listSet(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	if err := runtime.ValidateArguments(context, runtime.ListValue, runtime.NumberValue, runtime.AnyValue); err != nil {
 		return nil, err
@@ -96,6 +147,27 @@ func listSet(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	context.Args[0].List[index] = context.Args[2]
 
 	return context.Args[0], nil
+}
+
+func listSetKey(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	if err := runtime.ValidateArguments(context, runtime.ListValue, runtime.KeywordValue, runtime.AnyValue); err != nil {
+		return nil, err
+	}
+
+	l := context.Args[0]
+
+	for i := 0; i < len(l.List); i++ {
+		if l.List[i].Type == runtime.KeywordValue && l.List[i].Keyword == context.Args[1].Keyword && i+1 < len(l.List) {
+			l.List[i+1] = context.Args[2]
+
+			return l, nil
+		}
+	}
+
+	l.List = append(l.List, context.Args[1])
+	l.List = append(l.List, context.Args[2])
+
+	return l, nil
 }
 
 func listDrop(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -217,4 +289,21 @@ func listRemove(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	}
 
 	return newList, nil
+}
+
+func listRemoveKey(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	if err := runtime.ValidateArguments(context, runtime.ListValue, runtime.KeywordValue); err != nil {
+		return nil, err
+	}
+
+	l := context.Args[0]
+
+	for i := 0; i < len(l.List); i++ {
+		if l.List[i].Type == runtime.KeywordValue && l.List[i].Keyword == context.Args[1].Keyword && i+1 < len(l.List) {
+			l.List = append(l.List[:i], l.List[i+1:]...)
+			l.List = append(l.List[:i], l.List[i+1:]...)
+		}
+	}
+
+	return l, nil
 }
