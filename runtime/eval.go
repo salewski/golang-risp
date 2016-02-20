@@ -49,10 +49,10 @@ func (b *Block) evalKeyword(node *parser.KeywordNode) *Value {
 
 func (b *Block) evalIdentifier(node *parser.IdentifierNode) (*Value, error) {
 	name := node.Token.Data
-	byReference := false
+	ref := false
 
-	if name[0] == '\'' {
-		byReference = true
+	if name[0] == '&' {
+		ref = true
 		name = name[1:]
 	}
 
@@ -60,7 +60,7 @@ func (b *Block) evalIdentifier(node *parser.IdentifierNode) (*Value, error) {
 		return nil, NewRuntimeError(node.Pos(), "unknown symbol '%s'", name)
 	}
 
-	if byReference {
+	if ref {
 		return b.Scope.GetSymbol(name).Value, nil
 	} else {
 		return b.Scope.GetSymbol(name).Value.Copy(), nil

@@ -178,7 +178,7 @@ func (l *Lexer) Lex() error {
 		case l.current() == '_', l.current() == '+', l.current() == '-', l.current() == '*', l.current() == '/', l.current() == '=', l.current() == '>', l.current() == '<':
 			l.consume()
 			l.addToken(Identifier)
-		case (l.current() == ':' || l.current() == '\'') && l.hasNext() && IsIdentifierStart(l.peek(1)):
+		case (l.current() == ':' || l.current() == '&') && l.hasNext() && IsIdentifierStart(l.peek(1)):
 			keyword := l.current() == ':'
 
 			l.lexIdentifierOrKeyword(keyword)
