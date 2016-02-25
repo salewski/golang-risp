@@ -156,5 +156,15 @@ func (b *Block) evalSingleList(node *parser.ListNode) (*Value, error) {
 }
 
 func (b *Block) evalQuote(node *parser.QuoteNode) (*Value, error) {
+	if list, isList := node.Node.(*parser.ListNode); isList {
+		l := NewListValue()
+
+		for _, listNode := range list.Nodes {
+			l.List = append(l.List, NewQuotedValue(listNode))
+		}
+
+		return l, nil
+	}
+
 	return NewQuotedValue(node.Node), nil
 }
