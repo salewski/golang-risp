@@ -144,6 +144,14 @@ func (v *Value) Copy() *Value {
 }
 
 func (v *Value) Equals(other *Value) bool {
+	if v.Type == QuotedValue && other.Type == StringValue {
+		return v.Quoted.String() == other.Str
+	}
+
+	if v.Type == StringValue && other.Type == QuotedValue {
+		return other.Quoted.String() == v.Str
+	}
+
 	if v.Type != other.Type {
 		return false
 	}
@@ -173,6 +181,8 @@ func (v *Value) Equals(other *Value) bool {
 		return &v.Function == &other.Function
 	case NilValue:
 		return true
+	case QuotedValue:
+		return v.Quoted.String() == other.Quoted.String()
 	default:
 		return false
 	}
