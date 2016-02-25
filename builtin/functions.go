@@ -31,6 +31,7 @@ var Symbols = runtime.Symtab{
 	"or":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinOr, "or"))),
 	"not":     runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinNot, "not"))),
 	"call":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinCall, "call"))),
+	"eval":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinEval, "eval"))),
 	"pass":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinPass, "pass"))),
 	"load":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinLoad, "load"))),
 	"cat":     runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinCat, "cat"))),
@@ -170,6 +171,14 @@ func builtinCall(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	function := context.Args[0].Function
 
 	return function.Call(context.Block, context.Args[1:], context.Pos)
+}
+
+func builtinEval(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	if err := runtime.ValidateArguments(context, runtime.QuotedValue); err != nil {
+		return nil, err
+	}
+
+	return context.Block.EvalNode(context.Args[0].Quoted)
 }
 
 func builtinPass(context *runtime.FunctionCallContext) (*runtime.Value, error) {

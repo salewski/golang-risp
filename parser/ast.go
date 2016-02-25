@@ -7,6 +7,7 @@ import (
 type Node interface {
 	Name() string
 	Pos() *lexer.TokenPos
+	String() string
 }
 
 type StringNode struct {
@@ -21,6 +22,10 @@ func (n *StringNode) Pos() *lexer.TokenPos {
 	return n.Token.Pos
 }
 
+func (n *StringNode) String() string {
+	return n.Token.Data
+}
+
 type NumberNode struct {
 	Token *lexer.Token `json:"token"`
 }
@@ -31,6 +36,10 @@ func (n *NumberNode) Name() string {
 
 func (n *NumberNode) Pos() *lexer.TokenPos {
 	return n.Token.Pos
+}
+
+func (n *NumberNode) String() string {
+	return n.Token.Data
 }
 
 type IdentifierNode struct {
@@ -45,6 +54,10 @@ func (n *IdentifierNode) Pos() *lexer.TokenPos {
 	return n.Token.Pos
 }
 
+func (n *IdentifierNode) String() string {
+	return n.Token.Data
+}
+
 type KeywordNode struct {
 	Token *lexer.Token `json:"token"`
 }
@@ -55,6 +68,10 @@ func (n *KeywordNode) Name() string {
 
 func (n *KeywordNode) Pos() *lexer.TokenPos {
 	return n.Token.Pos
+}
+
+func (n *KeywordNode) String() string {
+	return n.Token.Data
 }
 
 type ListNode struct {
@@ -71,6 +88,22 @@ func (n *ListNode) Pos() *lexer.TokenPos {
 	return n.OpenToken.Pos
 }
 
+func (n *ListNode) String() string {
+	s := "("
+
+	for i, elem := range n.Nodes {
+		s += elem.String()
+
+		if i != len(n.Nodes)-1 {
+			s += " "
+		}
+	}
+
+	s += ")"
+
+	return s
+}
+
 type QuoteNode struct {
 	Token *lexer.Token `json:"token"`
 	Node  Node         `json:"node"`
@@ -82,4 +115,8 @@ func (n *QuoteNode) Name() string {
 
 func (n *QuoteNode) Pos() *lexer.TokenPos {
 	return n.Token.Pos
+}
+
+func (n *QuoteNode) String() string {
+	return n.Node.String()
 }

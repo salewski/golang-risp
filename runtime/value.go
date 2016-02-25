@@ -1,6 +1,9 @@
 package runtime
 
-import "math/big"
+import (
+	"github.com/raoulvdberge/risp/parser"
+	"math/big"
+)
 
 var (
 	Nil   = &Value{Type: NilValue}
@@ -18,6 +21,7 @@ const (
 	ListValue
 	FunctionValue
 	NilValue
+	QuotedValue
 	AnyValue // used in arguments.go, to validate *any* argument
 )
 
@@ -37,6 +41,8 @@ func (t ValueType) String() string {
 		return "function"
 	case NilValue:
 		return "nil"
+	case QuotedValue:
+		return "quoted"
 	default:
 		return "?"
 	}
@@ -50,6 +56,7 @@ type Value struct {
 	Keyword  string
 	List     []*Value
 	Function *Function
+	Quoted   parser.Node
 }
 
 func (v *Value) NumberToFloat64() float64 {
@@ -100,6 +107,8 @@ func (v *Value) String() string {
 		return s
 	case NilValue:
 		return "nil"
+	case QuotedValue:
+		return v.Quoted.String()
 	default:
 		return "<" + v.Type.String() + ">"
 	}
@@ -127,6 +136,8 @@ func (v *Value) Copy() *Value {
 		}
 	case FunctionValue:
 		other.Function = v.Function.Copy()
+	case QuotedValue:
+		other.Quoted = v.Quoted
 	}
 
 	return other
@@ -206,6 +217,10 @@ func NewFunctionValue(value *Function) *Value {
 
 func NewListValue() *Value {
 	return &Value{Type: ListValue}
+}
+
+func NewQuotedValue(node parser.Node) *Value {
+	return &Value{Type: QuotedValue, Quoted: node}
 }
 
 func BooleanValueFor(value bool) *Value {
