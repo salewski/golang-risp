@@ -10,32 +10,33 @@ import (
 )
 
 var Symbols = runtime.Symtab{
-	"t":       runtime.NewSymbol(runtime.True),
-	"f":       runtime.NewSymbol(runtime.False),
-	"nil":     runtime.NewSymbol(runtime.Nil),
-	"print":   runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinPrint, "print"))),
-	"println": runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinPrintln, "println"))),
-	"list":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinList, "list"))),
-	"string":  runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinString, "string"))),
-	"+":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMath, "+"))),
-	"-":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMath, "-"))),
-	"*":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMath, "*"))),
-	"/":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMath, "/"))),
-	"=":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinEquals, "="))),
-	"!=":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinNotEquals, "!="))),
-	">":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMathCmp, ">"))),
-	">=":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMathCmp, ">="))),
-	"<":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMathCmp, "<"))),
-	"<=":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMathCmp, "<="))),
-	"and":     runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinAnd, "and"))),
-	"or":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinOr, "or"))),
-	"not":     runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinNot, "not"))),
-	"call":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinCall, "call"))),
-	"eval":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinEval, "eval"))),
-	"pass":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinPass, "pass"))),
-	"load":    runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinLoad, "load"))),
-	"cat":     runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinCat, "cat"))),
-	"assert":  runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinAssert, "assert"))),
+	"t":           runtime.NewSymbol(runtime.True),
+	"f":           runtime.NewSymbol(runtime.False),
+	"nil":         runtime.NewSymbol(runtime.Nil),
+	"print":       runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinPrint, "print"))),
+	"println":     runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinPrintln, "println"))),
+	"list":        runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinList, "list"))),
+	"string":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinString, "string"))),
+	"+":           runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMath, "+"))),
+	"-":           runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMath, "-"))),
+	"*":           runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMath, "*"))),
+	"/":           runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMath, "/"))),
+	"=":           runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinEquals, "="))),
+	"!=":          runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinNotEquals, "!="))),
+	">":           runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMathCmp, ">"))),
+	">=":          runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMathCmp, ">="))),
+	"<":           runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMathCmp, "<"))),
+	"<=":          runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinMathCmp, "<="))),
+	"and":         runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinAnd, "and"))),
+	"or":          runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinOr, "or"))),
+	"not":         runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinNot, "not"))),
+	"call":        runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinCall, "call"))),
+	"eval":        runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinEval, "eval"))),
+	"quoted2list": runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinQuoted2List, "quoted2list"))),
+	"pass":        runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinPass, "pass"))),
+	"load":        runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinLoad, "load"))),
+	"cat":         runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinCat, "cat"))),
+	"assert":      runtime.NewSymbol(runtime.NewFunctionValue(runtime.NewBuiltinFunction(builtinAssert, "assert"))),
 }
 
 func builtinPrint(context *runtime.FunctionCallContext) (*runtime.Value, error) {
@@ -179,6 +180,26 @@ func builtinEval(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 	}
 
 	return context.Block.EvalNode(context.Args[0].Quoted)
+}
+
+func builtinQuoted2List(context *runtime.FunctionCallContext) (*runtime.Value, error) {
+	if err := runtime.ValidateArguments(context, runtime.QuotedValue); err != nil {
+		return nil, err
+	}
+
+	quoted := context.Args[0].Quoted
+
+	if list, isList := quoted.(*parser.ListNode); isList {
+		l := runtime.NewListValue()
+
+		for _, listNode := range list.Nodes {
+			l.List = append(l.List, runtime.NewQuotedValue(listNode))
+		}
+
+		return l, nil
+	} else {
+		return nil, runtime.NewRuntimeError(context.Pos, "expected a quoted list, not %s", quoted.Name())
+	}
 }
 
 func builtinPass(context *runtime.FunctionCallContext) (*runtime.Value, error) {

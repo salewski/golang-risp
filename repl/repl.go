@@ -120,7 +120,7 @@ func resultType(value *runtime.Value) string {
 	case runtime.NilValue:
 		return ""
 	case runtime.QuotedValue:
-		return value.Quoted.Name()
+		return "quoted " + value.Quoted.Name()
 	default:
 		return value.Type.String()
 	}

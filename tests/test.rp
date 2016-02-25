@@ -7,12 +7,12 @@
 (defun green (txt) (color "\x1B[32m" txt))
 
 (defun add (name input output)
-	(list:push 'tests (list :name name :input input :output output :status 0)))
+	(list:push &tests (list :name name :input input :output output :status 0)))
 
 (defun run ()
-	(for 'tests (test)
-		(if (= (list:get-key test :input) (list:get-key test :output))
-			(list:set-key 'test :status 1))))
+	(for &tests (test)
+		(if (= (eval (list:get-key test :input)) (list:get-key test :output))
+			(list:set-key &test :status 1))))
 
 (defun results ()
 	(for tests (test)

@@ -27,7 +27,7 @@ func (b *Block) EvalNode(node parser.Node) (*Value, error) {
 	case *parser.KeywordNode:
 		return b.evalKeyword(node), nil
 	case *parser.IdentifierNode:
-		return b.evalIdentifier(node, false)
+		return b.evalIdentifier(node)
 	case *parser.ListNode:
 		return b.evalList(node)
 	case *parser.QuoteNode:
@@ -49,8 +49,14 @@ func (b *Block) evalKeyword(node *parser.KeywordNode) *Value {
 	return NewKeywordValue(node.Token.Data)
 }
 
-func (b *Block) evalIdentifier(node *parser.IdentifierNode, ref bool) (*Value, error) {
+func (b *Block) evalIdentifier(node *parser.IdentifierNode) (*Value, error) {
 	name := node.Token.Data
+	ref := false
+
+	if name[0] == '&' {
+		name = name[1:]
+		ref = true
+	}
 
 	if !b.Scope.HasSymbol(name) {
 		return nil, NewRuntimeError(node.Pos(), "unknown symbol '%s'", name)
@@ -156,15 +162,5 @@ func (b *Block) evalSingleList(node *parser.ListNode) (*Value, error) {
 }
 
 func (b *Block) evalQuote(node *parser.QuoteNode) (*Value, error) {
-	if list, isList := node.Node.(*parser.ListNode); isList {
-		l := NewListValue()
-
-		for _, listNode := range list.Nodes {
-			l.List = append(l.List, NewQuotedValue(listNode))
-		}
-
-		return l, nil
-	}
-
 	return NewQuotedValue(node.Node), nil
 }
