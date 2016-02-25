@@ -70,3 +70,16 @@ func (n *ListNode) Name() string {
 func (n *ListNode) Pos() *lexer.TokenPos {
 	return n.OpenToken.Pos
 }
+
+type QuoteNode struct {
+	Token *lexer.Token `json:"token"`
+	Node  Node         `json:"node"`
+}
+
+func (n *QuoteNode) Name() string {
+	return "quote"
+}
+
+func (n *QuoteNode) Pos() *lexer.TokenPos {
+	return n.Token.Pos
+}

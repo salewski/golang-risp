@@ -178,10 +178,8 @@ func (l *Lexer) Lex() error {
 		case l.current() == '_', l.current() == '+', l.current() == '-', l.current() == '*', l.current() == '/', l.current() == '=', l.current() == '>', l.current() == '<':
 			l.consume()
 			l.addToken(Identifier)
-		case (l.current() == ':' || l.current() == '&') && l.hasNext() && IsIdentifierStart(l.peek(1)):
-			keyword := l.current() == ':'
-
-			l.lexIdentifierOrKeyword(keyword)
+		case l.current() == ':' && l.hasNext() && IsIdentifierStart(l.peek(1)):
+			l.lexIdentifierOrKeyword(true)
 		case IsIdentifierStart(l.current()):
 			l.lexIdentifierOrKeyword(false)
 		case l.current() == '"':
@@ -190,14 +188,14 @@ func (l *Lexer) Lex() error {
 			if err != nil {
 				return err
 			}
-		case l.current() == '(', l.current() == ')':
+		case l.current() == '(', l.current() == ')', l.current() == '\'':
 			l.lexSeparator()
 		case l.current() == ';':
 			l.lexComment()
 		case l.current() < ' ', unicode.IsControl(l.current()), unicode.IsSpace(l.current()):
 			l.ignore(1)
 		default:
-			return NewSyntaxError(l.newPos(), "unknown character '%c'", l.current())
+			return NewSyntaxError(l.newPos(), "unexpected character '%c'", l.current())
 		}
 	}
 

@@ -56,6 +56,16 @@ func (p *Parser) nextNode() (Node, error) {
 		node = &StringNode{Token: t}
 
 		p.next()
+	case t.IsTypeAndData(lexer.Separator, "'"):
+		p.next()
+
+		quotedNode, err := p.nextNode()
+
+		if err != nil {
+			return nil, err
+		}
+
+		node = &QuoteNode{Token: t, Node: quotedNode}
 	case t.IsTypeAndData(lexer.Separator, "("):
 		listNode := &ListNode{
 			OpenToken: t,

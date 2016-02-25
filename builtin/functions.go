@@ -163,7 +163,7 @@ func builtinNot(context *runtime.FunctionCallContext) (*runtime.Value, error) {
 }
 
 func builtinCall(context *runtime.FunctionCallContext) (*runtime.Value, error) {
-	if len(context.Args) < 1 {
+	if len(context.Args) < 1 || context.Args[0].Type != runtime.FunctionValue {
 		return nil, runtime.NewRuntimeError(context.Pos, "expected a function")
 	}
 

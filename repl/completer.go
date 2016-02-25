@@ -34,6 +34,12 @@ func (s *ReplSession) completer(line string) (c []string) {
 				c = append(c, line[0:identEnd+1]+key)
 			}
 		}
+
+		for key, _ := range s.block.Scope.Macros {
+			if strings.HasPrefix(key, ident) {
+				c = append(c, line[0:identEnd+1]+key)
+			}
+		}
 	}
 
 	return

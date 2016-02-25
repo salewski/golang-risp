@@ -27,9 +27,11 @@ func (b *Block) EvalNode(node parser.Node) (*Value, error) {
 	case *parser.KeywordNode:
 		return b.evalKeyword(node), nil
 	case *parser.IdentifierNode:
-		return b.evalIdentifier(node)
+		return b.evalIdentifier(node, false)
 	case *parser.ListNode:
 		return b.evalList(node)
+	case *parser.QuoteNode:
+		return b.evalQuote(node)
 	default:
 		return nil, NewRuntimeError(node.Pos(), "unexpected %s", node.Name())
 	}
@@ -47,14 +49,8 @@ func (b *Block) evalKeyword(node *parser.KeywordNode) *Value {
 	return NewKeywordValue(node.Token.Data)
 }
 
-func (b *Block) evalIdentifier(node *parser.IdentifierNode) (*Value, error) {
+func (b *Block) evalIdentifier(node *parser.IdentifierNode, ref bool) (*Value, error) {
 	name := node.Token.Data
-	ref := false
-
-	if name[0] == '&' {
-		ref = true
-		name = name[1:]
-	}
 
 	if !b.Scope.HasSymbol(name) {
 		return nil, NewRuntimeError(node.Pos(), "unknown symbol '%s'", name)
@@ -157,4 +153,28 @@ func (b *Block) evalSingleList(node *parser.ListNode) (*Value, error) {
 
 		return value.Function.Call(b, args, node.Pos())
 	}
+}
+
+func (b *Block) evalQuote(node *parser.QuoteNode) (*Value, error) {
+	if list, isList := node.Node.(*parser.ListNode); isList {
+		l := NewListValue()
+
+		for _, node := range list.Nodes {
+			result, err := b.EvalNode(node)
+
+			if err != nil {
+				return nil, err
+			}
+
+			l.List = append(l.List, result)
+		}
+
+		return l, nil
+	}
+
+	if ident, isIdentifier := node.Node.(*parser.IdentifierNode); isIdentifier {
+		return b.evalIdentifier(ident, true)
+	}
+
+	return b.EvalNode(node.Node)
 }
