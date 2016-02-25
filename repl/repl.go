@@ -102,8 +102,8 @@ func (s *ReplSession) Run() {
 
 					data := util.Yellow("===> " + result.String())
 
-					if result.Type != runtime.NilValue {
-						data += " " + util.Yellow("("+result.Type.String()+")")
+					if resultType(result) != "" {
+						data += " " + util.Yellow("("+resultType(result)+")")
 					}
 
 					fmt.Println(data)
@@ -112,5 +112,16 @@ func (s *ReplSession) Run() {
 				}
 			}
 		}
+	}
+}
+
+func resultType(value *runtime.Value) string {
+	switch value.Type {
+	case runtime.NilValue:
+		return ""
+	case runtime.QuotedValue:
+		return value.Quoted.Name()
+	default:
+		return value.Type.String()
 	}
 }
