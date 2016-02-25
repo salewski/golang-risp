@@ -1,10 +1,12 @@
 (namespace test)
 
+(defconst color-reset "\x1B[00m")
+(defconst color-red "\x1B[31m")
+(defconst color-green "\x1B[32m")
+
 (def tests (list))
 
-(defun color (color txt) (cat color txt "\x1B[00m"))
-(defun red (txt) (color "\x1B[31m" txt))
-(defun green (txt) (color "\x1B[32m" txt))
+(defun color (color data) (cat color data color-reset))
 
 (defun add (name input output)
 	(list:push &tests (list :name name :input input :output output :status 0)))
@@ -18,7 +20,7 @@
 	(for tests (test)
 		(println
 			(string:format "~\t~" (list:get-key test :name) (case (list:get-key test :status)
-				(1) (green "Passed")
-				(0) (red "Failed"))))))
+				(1) (color color-green "Passed")
+				(0) (color color-red "Failed"))))))
 
 (export add run results)
