@@ -26,4 +26,5 @@ type MacroCallContext struct {
 	Block *Block
 	Nodes []parser.Node
 	Pos   *lexer.TokenPos
+	Name  string
 }

@@ -8,6 +8,7 @@ import (
 var Macros = runtime.Mactab{
 	"defun":     runtime.NewMacro(builtinDefun, true, "identifier", "list", "list"),
 	"def":       runtime.NewMacro(builtinDef, true, "identifier", "any"),
+	"defconst":  runtime.NewMacro(builtinDef, true, "identifier", "any"),
 	"fun":       runtime.NewMacro(builtinFun, true, "list", "list"),
 	"for":       runtime.NewMacro(builtinFor, true, "any", "list", "list"),
 	"while":     runtime.NewMacro(builtinWhile, true, "any", "list"),
@@ -23,6 +24,10 @@ func builtinDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
 
 	if name == "_" {
 		return nil, runtime.NewRuntimeError(context.Nodes[0].Pos(), "disallowed symbol name")
+	}
+
+	if context.Block.Scope.GetSymbol(name) != nil && context.Block.Scope.GetSymbol(name).Const {
+		return nil, runtime.NewRuntimeError(context.Nodes[0].Pos(), "%s is a constant and cannot be modified", name)
 	}
 
 	argNodes := context.Nodes[1].(*parser.ListNode)
@@ -63,7 +68,14 @@ func builtinDef(context *runtime.MacroCallContext) (*runtime.Value, error) {
 		return nil, err
 	}
 
-	context.Block.Scope.SetSymbol(name, runtime.NewSymbol(value))
+	if context.Block.Scope.GetSymbol(name) != nil && context.Block.Scope.GetSymbol(name).Const {
+		return nil, runtime.NewRuntimeError(context.Nodes[0].Pos(), "%s is a constant and cannot be modified", name)
+	}
+
+	sym := runtime.NewSymbol(value)
+	sym.Const = context.Name == "defconst"
+
+	context.Block.Scope.SetSymbol(name, sym)
 
 	return value, nil
 }

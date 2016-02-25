@@ -12,12 +12,14 @@ type Scope struct {
 type Symbol struct {
 	Value    *Value
 	Exported bool
+	Const    bool
 }
 
 func NewSymbol(value *Value) *Symbol {
 	return &Symbol{
 		Value:    value,
 		Exported: false,
+		Const:    false,
 	}
 }
 

@@ -133,12 +133,9 @@ func (b *Block) evalSingleList(node *parser.ListNode) (*Value, error) {
 			Block: b,
 			Nodes: args,
 			Pos:   nameNode.Pos(),
+			Name:  name,
 		})
-	} else {
-		if !b.Scope.HasSymbol(name) {
-			return nil, NewRuntimeError(node.Pos(), "unknown function or a macro '%s'", name)
-		}
-
+	} else if b.Scope.HasSymbol(name) {
 		value := b.Scope.GetSymbol(name).Value
 
 		if value.Type != FunctionValue {
@@ -158,6 +155,8 @@ func (b *Block) evalSingleList(node *parser.ListNode) (*Value, error) {
 		}
 
 		return value.Function.Call(b, args, node.Pos())
+	} else {
+		return nil, NewRuntimeError(node.Pos(), "unknown function or a macro '%s'", name)
 	}
 }
 
