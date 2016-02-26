@@ -11,13 +11,13 @@ func (s *ReplSession) completer(line string) (c []string) {
 	ident := ""
 
 	for i := len(line) - 1; i >= 0; i-- {
-		identEnd = i
-
 		part := rune(line[i])
 
 		if lexer.IsIdentifierPart(part) {
+			identEnd = i
 			ident += string(part)
 		} else if lexer.IsIdentifierStart(part) {
+			identEnd = i
 			ident += string(part)
 
 			break
@@ -29,15 +29,21 @@ func (s *ReplSession) completer(line string) (c []string) {
 	ident = util.ReverseString(ident)
 
 	if ident != "" && lexer.IsIdentifierStart(rune(ident[0])) && identEnd != -1 {
-		for key, _ := range s.block.Scope.Symbols {
-			if strings.HasPrefix(key, ident) {
-				c = append(c, line[0:identEnd+1]+key)
+		prev := line[0:identEnd]
+
+		if identEnd == 0 {
+			prev = ""
+		}
+
+		for name, _ := range s.block.Scope.Symbols {
+			if strings.HasPrefix(name, ident) {
+				c = append(c, prev+name)
 			}
 		}
 
-		for key, _ := range s.block.Scope.Macros {
-			if strings.HasPrefix(key, ident) {
-				c = append(c, line[0:identEnd+1]+key)
+		for name, _ := range s.block.Scope.Macros {
+			if strings.HasPrefix(name, ident) {
+				c = append(c, prev+name)
 			}
 		}
 	}
