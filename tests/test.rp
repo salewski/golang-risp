@@ -16,11 +16,11 @@
 		(if (= (eval (list:get-key test :input)) (list:get-key test :output))
 			(list:set-key &test :status 1))))
 
-(defun results ()
+(defun print-results ()
 	(for tests (test)
 		(println
 			(string:format "~\t~" (list:get-key test :name) (case (list:get-key test :status)
 				(1) (color color-green "Passed")
 				(0) (color color-red "Failed"))))))
 
-(export add run results)
+(export add run print-results)

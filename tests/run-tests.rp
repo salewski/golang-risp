@@ -2,7 +2,9 @@
 
 (test:add "+" '(+ 1 1) 2)
 (test:add "-" '(- 3 2) 1)
+(test:add "*" '(* 5 5) 25)
+(test:add "/" '(/ 25 5) 5)
 
 (test:run)
 
-(test:results)
+(test:print-results)

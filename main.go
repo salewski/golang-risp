@@ -15,6 +15,7 @@ import (
 	"github.com/raoulvdberge/risp/util"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 var (
@@ -31,7 +32,9 @@ func main() {
 		var file *util.File
 
 		util.Timed("file reading", *debug, func() {
-			f, err := util.NewFile(flag.Arg(0))
+			os.Chdir(filepath.Dir(flag.Arg(0)))
+
+			f, err := util.NewFile(filepath.Base(flag.Arg(0)))
 
 			if err != nil {
 				util.ReportError(err, false)

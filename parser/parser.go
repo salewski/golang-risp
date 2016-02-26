@@ -22,6 +22,10 @@ func (p *Parser) next() {
 	p.pos++
 }
 
+func (p *Parser) isEOF() bool {
+	return p.pos >= len(p.Tokens)
+}
+
 func (p *Parser) hasNext() bool {
 	return p.pos < len(p.Tokens)
 }
@@ -58,6 +62,10 @@ func (p *Parser) nextNode() (Node, error) {
 		p.next()
 	case t.IsTypeAndData(lexer.Separator, "'"):
 		p.next()
+
+		if p.isEOF() {
+			return nil, lexer.NewSyntaxError(p.last().Pos, "expected something to quote")
+		}
 
 		quotedNode, err := p.nextNode()
 
