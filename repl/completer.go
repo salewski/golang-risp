@@ -31,10 +31,6 @@ func (s *ReplSession) completer(line string) (c []string) {
 	if ident != "" && lexer.IsIdentifierStart(rune(ident[0])) && identEnd != -1 {
 		prev := line[0:identEnd]
 
-		if identEnd == 0 {
-			prev = ""
-		}
-
 		for name, _ := range s.block.Scope.Symbols {
 			if strings.HasPrefix(name, ident) {
 				c = append(c, prev+name)
