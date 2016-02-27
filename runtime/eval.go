@@ -6,6 +6,10 @@ func (b *Block) Eval() (*Value, error) {
 	var result *Value = Nil
 
 	for _, n := range b.Nodes {
+		if _, isList := n.(*parser.ListNode); !isList {
+			return nil, NewRuntimeError(n.Pos(), "expected a list")
+		}
+
 		r, err := b.EvalNode(n)
 
 		if err != nil {
@@ -77,6 +81,10 @@ func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
 			var result *Value
 
 			for _, listNode := range node.Nodes {
+				if _, isList := listNode.(*parser.ListNode); !isList {
+					return nil, NewRuntimeError(listNode.Pos(), "expected a list")
+				}
+
 				listResult, err := b.EvalNode(listNode)
 
 				if err != nil {
@@ -99,13 +107,13 @@ func (b *Block) evalList(node *parser.ListNode) (*Value, error) {
 
 func (b *Block) evalSingleList(node *parser.ListNode) (*Value, error) {
 	if len(node.Nodes) < 1 {
-		return nil, NewRuntimeError(node.Pos(), "invalid list notation: expected a function or macro name")
+		return nil, NewRuntimeError(node.Pos(), "expected a function or macro name")
 	}
 
 	nameNode, ok := node.Nodes[0].(*parser.IdentifierNode)
 
 	if !ok {
-		return nil, NewRuntimeError(node.Nodes[0].Pos(), "invalid list notation: expected an identifier")
+		return nil, NewRuntimeError(node.Nodes[0].Pos(), "expected an identifier")
 	}
 
 	name := nameNode.Token.Data

@@ -41,6 +41,8 @@ func (t ValueType) String() string {
 		return "function"
 	case NilValue:
 		return "nil"
+	case QuotedValue:
+		return "quoted"
 	default:
 		return "?"
 	}

@@ -79,6 +79,18 @@ func (s *Scope) GetMacro(key string) *Macro {
 	return s.Macros[key]
 }
 
+func (s *Scope) SetMacro(key string, macro *Macro) {
+	if s.parent != nil && s.parent.GetMacro(key) != nil {
+		s.parent.SetMacro(key, macro)
+	} else {
+		s.SetMacroLocally(key, macro)
+	}
+}
+
+func (s *Scope) SetMacroLocally(key string, macro *Macro) {
+	s.Macros[key] = macro
+}
+
 func (s *Scope) HasMacro(key string) bool {
 	return s.GetMacro(key) != nil
 }

@@ -8,6 +8,7 @@ import (
 var Macros = runtime.Mactab{
 	"defun":     runtime.NewMacro(builtinDefun, true, "identifier", "list", "list"),
 	"def":       runtime.NewMacro(builtinDef, true, "identifier", "any"),
+	"defmacro":  runtime.NewMacro(builtinDefmacro, true, "identifier", "list", "list"),
 	"defconst":  runtime.NewMacro(builtinDef, true, "identifier", "any"),
 	"fun":       runtime.NewMacro(builtinFun, true, "list", "list"),
 	"for":       runtime.NewMacro(builtinFor, true, "any", "list", "list"),
@@ -19,11 +20,55 @@ var Macros = runtime.Mactab{
 	"namespace": runtime.NewMacro(builtinNamespace, true, "identifier"),
 }
 
+func builtinDefmacro(context *runtime.MacroCallContext) (*runtime.Value, error) {
+	name := context.Nodes[0].(*parser.IdentifierNode).Token.Data
+
+	if name == "_" {
+		return nil, runtime.NewRuntimeError(context.Nodes[0].Pos(), "disallowed macro name")
+	}
+
+	if context.Block.Scope.GetSymbol(name) != nil && context.Block.Scope.GetSymbol(name).Const {
+		return nil, runtime.NewRuntimeError(context.Nodes[0].Pos(), "%s is a constant and cannot be modified", name)
+	}
+
+	argNodes := context.Nodes[1].(*parser.ListNode)
+	var args []string
+	callback := context.Nodes[2].(*parser.ListNode)
+
+	if len(callback.Nodes) == 0 {
+		return nil, runtime.NewRuntimeError(callback.Pos(), "empty macro body")
+	}
+
+	for _, argNode := range argNodes.Nodes {
+		ident, ok := argNode.(*parser.IdentifierNode)
+
+		if !ok {
+			return nil, runtime.NewRuntimeError(argNode.Pos(), "expected an identifier")
+		}
+
+		args = append(args, ident.Token.Data)
+	}
+
+	macro := runtime.NewMacro(func(handlerContext *runtime.MacroCallContext) (*runtime.Value, error) {
+		block := runtime.NewBlock([]parser.Node{callback}, runtime.NewScope(handlerContext.Block.Scope))
+
+		for i, arg := range args {
+			block.Scope.SetSymbolLocally(arg, runtime.NewSymbol(runtime.NewQuotedValue(handlerContext.Nodes[i])))
+		}
+
+		return block.Eval()
+	}, false)
+
+	context.Block.Scope.SetMacro(name, macro)
+
+	return runtime.Nil, nil
+}
+
 func builtinDefun(context *runtime.MacroCallContext) (*runtime.Value, error) {
 	name := context.Nodes[0].(*parser.IdentifierNode).Token.Data
 
 	if name == "_" {
-		return nil, runtime.NewRuntimeError(context.Nodes[0].Pos(), "disallowed symbol name")
+		return nil, runtime.NewRuntimeError(context.Nodes[0].Pos(), "disallowed function name")
 	}
 
 	if context.Block.Scope.GetSymbol(name) != nil && context.Block.Scope.GetSymbol(name).Const {
