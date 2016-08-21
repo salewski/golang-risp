@@ -1,26 +1,36 @@
+; testing library for risp
 (namespace test)
 
 (defconst color-reset "\x1B[00m")
 (defconst color-red "\x1B[31m")
 (defconst color-green "\x1B[32m")
 
-(def tests (list))
-
 (defun color (color data) (cat color data color-reset))
 
-(defun add (name input output)
-	(list:push &tests (list :name name :input input :output output :status 0)))
+(defconst status-failed 0)
+(defconst status-success 1)
 
-(defun run ()
-	(for &tests (test)
+; creates a test context
+(defun create-context ()
+	(list))
+
+; adds a test to a given context
+(defun add (ctx name input output)
+	(list:push &ctx
+		(list :name name :input input :output output :status status-failed)))
+
+; runs the tests and stores the result
+(defun run (ctx)
+	(for &ctx (test)
 		(if (= (eval (list:get-key test :input)) (list:get-key test :output))
-			(list:set-key &test :status 1))))
+			(list:set-key &test :status status-success))))
 
-(defun print-results ()
-	(for tests (test)
+; prints out the results of the tests
+(defun print-results (ctx)
+	(for &ctx (test)
 		(println
 			(string:format "~\t~" (list:get-key test :name) (case (list:get-key test :status)
-				(1) (color color-green "Passed")
-				(0) (color color-red "Failed"))))))
+				(status-success) (color color-green "Passed")
+				(status-failed) (color color-red "Failed"))))))
 
-(export add run print-results)
+(export create-context add run print-results)
