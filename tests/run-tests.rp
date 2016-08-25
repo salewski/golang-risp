@@ -1,12 +1,12 @@
 (load "test.rp")
 
-(def ctx (test:create-context))
+(def tests (list))
 
-(test:add &ctx "+" '(+ 1 1) 2)
-(test:add &ctx "-" '(- 3 2) 1)
-(test:add &ctx "*" '(* 5 5) 25)
-(test:add &ctx "/" '(/ 25 5) 5)
+(test:add &tests "+" '(+ 1 1) 2)
+(test:add &tests "-" '(- 3 2) 1)
+(test:add &tests "*" '(* 5 5) 25)
+(test:add &tests "/" '(/ 25 5) 5)
 
-(test:run &ctx)
+(test:run &tests)
 
-(test:print-results &ctx)
+(test:print-results &tests)
